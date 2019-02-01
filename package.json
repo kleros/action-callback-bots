@@ -1,0 +1,29 @@
+{
+  "name": "action-callback-bots",
+  "version": "1.0.0",
+  "description": "Collection of bots that call contract action callbacks.",
+  "repository": "https://github.com/kleros/action-callback-bots.git",
+  "author": "Kleros",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "prettify": "kathari prettify",
+    "lint": "kathari lint:js --no-root",
+    "test": "echo \"\"",
+    "cz": "kathari cz"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "kathari precommit",
+      "commit-msg": "kathari commitmsg"
+    }
+  },
+  "devDependencies": {
+    "@kleros/kathari": "^0.20.0"
+  }
+}
