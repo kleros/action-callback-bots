@@ -10,7 +10,9 @@
     "prettify": "kathari prettify",
     "lint": "kathari lint:js --no-root",
     "test": "echo \"\"",
-    "cz": "kathari cz"
+    "cz": "kathari cz",
+    "start": "env-cmd ./.env.staging node ./src/index.js",
+    "start:production": "env-cmd ./.env.production node ./src/index.js"
   },
   "commitlint": {
     "extends": [
@@ -24,6 +26,12 @@
     }
   },
   "devDependencies": {
-    "@kleros/kathari": "^0.20.0"
+    "@kleros/kathari": "^0.20.0",
+    "env-cmd": "^8.0.2"
+  },
+  "dependencies": {
+    "delay": "^4.1.0",
+    "function-batch": "^1.1.2",
+    "web3": "^1.0.0-beta.41"
   }
 }
