@@ -17,3 +17,6 @@
 
 # Misc
 /.DS_Store
+
+# Keys
+/action-callback-bots.pem
