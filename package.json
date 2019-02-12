@@ -1,7 +1,7 @@
 {
   "name": "web3-batched-send",
   "main": "./src/utils/batched-send.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Collection of bots that call contract action callbacks.",
   "repository": "https://github.com/kleros/action-callback-bots.git",
   "author": "Kleros",
