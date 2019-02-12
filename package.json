@@ -6,7 +6,7 @@
   "repository": "https://github.com/kleros/action-callback-bots.git",
   "author": "Kleros",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "scripts": {
     "prettify": "kathari prettify",
     "lint": "kathari lint:js --no-root",
