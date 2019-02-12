@@ -1,8 +1,15 @@
 {
   "name": "web3-batched-send",
+  "description": "A utility for sending queued batches of transactions efficiently.",
+  "keywords": [
+    "ethereum",
+    "web3",
+    "transaction",
+    "batch",
+    "gas"
+  ],
   "main": "./src/utils/batched-send.js",
   "version": "1.0.1",
-  "description": "Collection of bots that call contract action callbacks.",
   "repository": "https://github.com/kleros/action-callback-bots.git",
   "author": "Kleros",
   "license": "MIT",
