@@ -47,7 +47,7 @@ module.exports = (
           p.map(t =>
             t
               .method(...(t.args ? t.args : []))
-              .estimateGas()
+              .estimateGas({ value: t.value || 0 })
               .then(
                 gas => ({ ...t, args: t.args || [], gas, value: t.value || 0 }),
                 _ => undefined
@@ -85,7 +85,9 @@ module.exports = (
           (await web3.eth.accounts.signTransaction(
             {
               data: batchSend.encodeABI(),
-              gas: (await batchSend.estimateGas()) + batch.totalGas,
+              gas:
+                (await batchSend.estimateGas({ value: batch.totalValue })) +
+                batch.totalGas,
               to: transactionBatcher.options.address,
               value: batch.totalValue
             },
