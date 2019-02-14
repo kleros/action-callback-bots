@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.3"></a>
+## [1.0.3](https://github.com/kleros/action-callback-bots/compare/v1.0.2...v1.0.3) (2019-02-14)
+
+
+### Bug Fixes
+
+* **batched-send:** use value in estimate gas ([b4e1a8f](https://github.com/kleros/action-callback-bots/commit/b4e1a8f))
+
+
+
 <a name="1.0.2"></a>
 ## [1.0.2](https://github.com/kleros/action-callback-bots/compare/v1.0.1...v1.0.2) (2019-02-12)
 
