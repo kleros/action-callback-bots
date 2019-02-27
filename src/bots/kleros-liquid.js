@@ -50,11 +50,12 @@ module.exports = async (web3, batchedSend) => {
                   method: klerosLiquid.methods.drawJurors,
                   to: klerosLiquid.options.address
                 },
-                {
-                  args: [disputeID, 1000],
+                // eslint-disable-next-line no-loop-func
+                ...dispute2.votesLengths.map((_l, i) => ({
+                  args: [disputeID, i, 1000],
                   method: klerosLiquid.methods.execute,
                   to: klerosLiquid.options.address
-                },
+                })),
                 {
                   args: [disputeID],
                   method: klerosLiquid.methods.executeRuling,
