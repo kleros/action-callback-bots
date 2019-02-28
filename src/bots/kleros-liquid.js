@@ -51,19 +51,15 @@ module.exports = async (web3, batchedSend) => {
                   method: klerosLiquid.methods.drawJurors,
                   to: klerosLiquid.options.address
                 },
-                ...dispute2.votesLengths
+                ...dispute2.votesLengths.map(
                   // eslint-disable-next-line no-loop-func
-                  .map((_l, i) => ({
-                    args: [disputeID, i, 1000],
-                    method: klerosLiquid.methods.execute,
-                    to: klerosLiquid.options.address
-                  }))
-                  .filter(
-                    // eslint-disable-next-line no-loop-func
-                    (_t, i) =>
-                      dispute2.votesLengths[i] * 2 !==
-                      Number(dispute2.repartitionsInEachRound[i])
-                  ),
+                  (l, i) =>
+                    l * 2 !== Number(dispute2.repartitionsInEachRound[i]) && {
+                      args: [disputeID, i, 1000],
+                      method: klerosLiquid.methods.execute,
+                      to: klerosLiquid.options.address
+                    }
+                ),
                 {
                   args: [disputeID],
                   method: klerosLiquid.methods.executeRuling,
