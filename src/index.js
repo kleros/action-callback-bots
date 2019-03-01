@@ -14,7 +14,7 @@ const run = async bot => {
     web3,
     process.env.TRANSACTION_BATCHER_CONTRACT_ADDRESS,
     process.env.BATCH_SEND_PRIVATE_KEY,
-    60000 // Batch time window of 1 minute.
+    20000 // Batch time window of 20 seconds.
   )
 
   while (true) {
