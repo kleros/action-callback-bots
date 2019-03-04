@@ -19,7 +19,7 @@ module.exports = async (web3, batchedSend) => {
       (await klerosLiquid.methods.nextDelayedSetStake().call())
     )
       batchedSend({
-        args: [1000],
+        args: [5],
         method: klerosLiquid.methods.executeDelayedSetStakes,
         to: klerosLiquid.options.address
       })
@@ -47,7 +47,7 @@ module.exports = async (web3, batchedSend) => {
                 // then the transaction would still succeed and we don't want to waste gas in those cases.
                 dispute2.votesLengths[dispute2.votesLengths.length - 1] >
                   dispute.drawsInRound && {
-                  args: [disputeID, 1000],
+                  args: [disputeID, 5],
                   method: klerosLiquid.methods.drawJurors,
                   to: klerosLiquid.options.address
                 },
@@ -55,7 +55,7 @@ module.exports = async (web3, batchedSend) => {
                   // eslint-disable-next-line no-loop-func
                   (l, i) =>
                     l * 2 !== Number(dispute2.repartitionsInEachRound[i]) && {
-                      args: [disputeID, i, 1000],
+                      args: [disputeID, i, 5],
                       method: klerosLiquid.methods.execute,
                       to: klerosLiquid.options.address
                     }
