@@ -37,10 +37,8 @@
     "@kleros/kathari": "^0.20.0",
     "delay": "^4.1.0",
     "env-cmd": "^8.0.2",
-    "standard-version": "^4.4.0"
-  },
-  "peerDependencies": {
-    "web3": "^1.0.0-beta.46"
+    "standard-version": "^4.4.0",
+    "web3": "^1.0.0-beta.48"
   },
   "dependencies": {
     "function-batch": "^1.1.2"
