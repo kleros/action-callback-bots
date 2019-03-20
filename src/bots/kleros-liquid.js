@@ -34,10 +34,24 @@ module.exports = async (web3, batchedSend) => {
           const dispute2 = await klerosLiquid.methods
             .getDispute(disputeID)
             .call()
+          const voteCounters = await Promise.all(
+            // eslint-disable-next-line no-loop-func
+            dispute2.votesLengths.map((_, i) =>
+              klerosLiquid.methods.getVoteCounter(disputeID, i).call()
+            )
+          )
+          const notTieAndNoOneCoherent = voteCounters.map(
+            v =>
+              !voteCounters[voteCounters.length - 1].tied &&
+              v.counts[voteCounters[voteCounters.length - 1].winningChoice] ===
+                '0'
+          )
           if (
             !dispute.ruled ||
             dispute2.votesLengths.some(
-              (l, i) => l * 2 !== Number(dispute2.repartitionsInEachRound[i])
+              (l, i) =>
+                Number(notTieAndNoOneCoherent[i] ? l : l * 2) !==
+                Number(dispute2.repartitionsInEachRound[i])
             )
           )
             // The dispute is not finalized, try to call all of its callbacks.
@@ -54,7 +68,8 @@ module.exports = async (web3, batchedSend) => {
                 ...dispute2.votesLengths.map(
                   // eslint-disable-next-line no-loop-func
                   (l, i) =>
-                    l * 2 !== Number(dispute2.repartitionsInEachRound[i]) && {
+                    Number(notTieAndNoOneCoherent[i] ? l : l * 2) !==
+                      Number(dispute2.repartitionsInEachRound[i]) && {
                       args: [disputeID, i, 5],
                       method: klerosLiquid.methods.execute,
                       to: klerosLiquid.options.address
