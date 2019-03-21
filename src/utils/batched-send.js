@@ -63,11 +63,14 @@ module.exports = (
     // we can just slice off the leading part of `pendingBatches` up to the batch whose transaction got mined and send a new batch transaction with all the transactions in the batches that remain.
     const batch = [].concat(...pendingBatches).reduce(
       (acc, t) => {
-        acc.datas.push(t.method(...t.args).encodeABI())
-        acc.targets.push(t.to)
-        acc.totalGas += t.gas
-        acc.totalValue += t.value
-        acc.values.push(t.value)
+        // Don't exceed block gas limit.
+        if (acc.totalGas + t.gas < 3000000) {
+          acc.datas.push(t.method(...t.args).encodeABI())
+          acc.targets.push(t.to)
+          acc.totalGas += t.gas
+          acc.totalValue += t.value
+          acc.values.push(t.value)
+        }
         return acc
       },
       { datas: [], targets: [], totalGas: 0, totalValue: 0, values: [] }
