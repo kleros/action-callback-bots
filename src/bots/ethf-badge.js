@@ -13,7 +13,7 @@ module.exports = async (web3, batchedSend) => {
     const challengePeriodDuration = await ethfBadge.methods.challengePeriodDuration().call()
 
     // Loop over all badge submissions and timeout undisputed pending requests.
-    for (let i = 0; i < numSubmissions; i++) {
+    for (let i = 0; i < Number(numSubmissions.count); i++) {
       const addr = await ethfBadge.methods.addressList(i).call()
       const address = await ethfBadge.methods.getAddressInfo(addr).call()
       if (Number(address.status) <= 1) continue // Badge doesn't have any pending requests.

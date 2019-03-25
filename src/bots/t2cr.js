@@ -13,7 +13,7 @@ module.exports = async (web3, batchedSend) => {
     const challengePeriodDuration = await t2cr.methods.challengePeriodDuration().call()
 
     // Loop over all token submissions and timeout undisputed pending requests.
-    for (let i = 0; i < numSubmissions; i++) {
+    for (let i = 0; i < Number(numSubmissions.count); i++) {
       const tokenID = await t2cr.methods.tokensList(i).call()
       const token = await t2cr.methods.getTokenInfo(tokenID).call()
       if (Number(token.status) <= 1) continue // Token doesn't have any pending requests.
