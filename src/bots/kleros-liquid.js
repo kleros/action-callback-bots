@@ -36,10 +36,55 @@ module.exports = async (web3, batchedSend) => {
             .call()
           const voteCounters = await Promise.all(
             // eslint-disable-next-line no-loop-func
-            dispute2.votesLengths.map((_, i) =>
-              klerosLiquid.methods.getVoteCounter(disputeID, i).call()
-            )
+            dispute2.votesLengths.map(async (numberOfVotes, i) => {
+              let voteCounter
+              try {
+                voteCounter = await klerosLiquid.methods
+                  .getVoteCounter(disputeID, i)
+                  .call()
+              } catch (_) {
+                // Look it up manually if numberOfChoices is too high for loop
+                let tied = true
+                let winningChoice = '0'
+                const _voteCounters = {}
+
+                for (let j = 0; j < numberOfVotes; j++) {
+                  const vote = await klerosLiquid.methods.getVote(
+                    disputeID,
+                    i,
+                    j
+                  )
+                  if (vote.voted) {
+                    // increment vote count
+                    _voteCounters[vote.choice] = _voteCounters[vote.choice]
+                      ? _voteCounters[vote.choice] + 1
+                      : 1
+                    if (vote.choice === winningChoice) {
+                      if (tied) tied = false // broke tie
+                    } else {
+                      const _winningChoiceVotes =
+                        _voteCounters[winningChoice] || 0
+                      if (_voteCounters[vote.choice] > _winningChoiceVotes) {
+                        winningChoice = vote.choice
+                        tied = false
+                      } else if (
+                        _voteCounters[vote.choice] === _winningChoiceVotes
+                      )
+                        tied = true
+                    }
+                  }
+                }
+
+                voteCounter = {
+                  tied,
+                  winningChoice
+                }
+              }
+
+              return voteCounter
+            })
           )
+
           const notTieAndNoOneCoherent = voteCounters.map(
             v =>
               !voteCounters[voteCounters.length - 1].tied &&
