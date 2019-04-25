@@ -1,7 +1,11 @@
 const Web3 = require('web3')
 const delay = require('delay')
 const _batchedSend = require('./utils/batched-send')
-const bots = [require('./bots/kleros-liquid'), require('./bots/t2cr'), require('./bots/ethf-badge')]
+const bots = [
+  require('./bots/kleros-liquid'),
+  require('./bots/t2cr'),
+  require('./bots/ethfinex-badge')
+]
 
 // Run bots and restart them on failures.
 const run = async bot => {
