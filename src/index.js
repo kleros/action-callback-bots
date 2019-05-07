@@ -4,7 +4,7 @@ const _batchedSend = require('./utils/batched-send')
 const bots = [
   require('./bots/kleros-liquid'),
   require('./bots/t2cr'),
-  require('./bots/ethfinex-badge')
+  require('./bots/badges')
 ]
 
 // Run bots and restart them on failures.
