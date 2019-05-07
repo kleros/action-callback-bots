@@ -23,6 +23,7 @@ module.exports = async (web3, batchedSend) => {
           batchedSend,
           fromBlock: badgeContract.blockNumber,
           tcrContract: badgeContract.tcrContract,
+          toBN: web3.utils.toBN,
           type: 'Address'
         })
 

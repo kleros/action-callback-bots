@@ -16,6 +16,7 @@ module.exports = async (web3, batchedSend) => {
       batchedSend,
       fromBlock: TCRs[process.env.NETWORK].T2CR.blockNumber,
       tcrContract: T2CR,
+      toBN: web3.utils.toBN,
       type: 'Token'
     })
 
