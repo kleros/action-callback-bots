@@ -1,12 +1,13 @@
 const delay = require('delay')
 const _badgeContract = require('../contracts/arbitrable-address-list.json')
-const TCRs = require('../../assets/TCRs.json')
 
 const { executePending } = require('../utils/tcr')
 
 module.exports = async (web3, batchedSend) => {
   // Instantiate the badge contracts.
-  const badgeContracts = TCRs[process.env.NETWORK].BadgeTCRs.map(
+  const badgeTCRs = JSON.parse(process.env.BADGE_TCRS)
+
+  const badgeContracts = badgeTCRs.map(
     badgeContract => ({
       blockNumber: badgeContract.blockNumber,
       tcrContract: new web3.eth.Contract(
