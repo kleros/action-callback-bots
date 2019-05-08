@@ -2,7 +2,7 @@ const Web3 = require('web3')
 const delay = require('delay')
 const _batchedSend = require('./utils/batched-send')
 const bots = [
-  // require('./bots/kleros-liquid'),
+  require('./bots/kleros-liquid'),
   require('./bots/t2cr'),
   require('./bots/badges')
 ]
