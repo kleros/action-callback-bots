@@ -34,6 +34,6 @@ module.exports = async (web3, batchedSend) => {
       })
     )
 
-    await delay(1000 * 60 * 60 * 10) // Every 10 minutes
+    await delay(1000 * 60 * 10) // Every 10 minutes
   }
 }
