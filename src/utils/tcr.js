@@ -57,8 +57,8 @@ const executePending = async ({
   )
 
   // Only take submissions that passed the challenge period.
-  const timedOutRequests = await Promise.all(
-    undisputedRequests.filter(async itemKey => {
+  const timedOutRequests = (await Promise.all(
+    undisputedRequests.map(async itemKey => {
       // Take the submission time from the latest request.
       const { numberOfRequests } = await tcrContract.methods[`get${type}Info`](
         itemKey
@@ -68,11 +68,17 @@ const executePending = async ({
           .getRequestInfo(itemKey, numberOfRequests - 1)
           .call()).submissionTime
       )
-      return toBN(Math.trunc(Date.now() / 1000).toString()).gte(
-        submissionTime.add(challengePeriodDuration)
-      )
+
+      return {
+        itemKey,
+        timedOut: toBN(Math.trunc(Date.now() / 1000).toString()).gte(
+          submissionTime.add(challengePeriodDuration)
+        )
+      }
     })
-  )
+  ))
+    .filter(item => item.timedOut)
+    .map(item => item.itemKey)
 
   // Execute pending items.
   await Promise.all(

@@ -6,10 +6,7 @@ const { executePending } = require('../utils/tcr')
 module.exports = async (web3, batchedSend) => {
   // Instantiate the T2CR contract.
   const t2cr = JSON.parse(process.env.T2CR)
-  const tcrContract = new web3.eth.Contract(
-    _T2CR.abi,
-    t2cr.address
-  )
+  const tcrContract = new web3.eth.Contract(_T2CR.abi, t2cr.address)
 
   while (true) {
     const executedItems = await executePending({

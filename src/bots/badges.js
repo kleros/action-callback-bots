@@ -7,15 +7,13 @@ module.exports = async (web3, batchedSend) => {
   // Instantiate the badge contracts.
   const badgeTCRs = JSON.parse(process.env.BADGE_TCRS)
 
-  const badgeContracts = badgeTCRs.map(
-    badgeContract => ({
-      blockNumber: badgeContract.blockNumber,
-      tcrContract: new web3.eth.Contract(
-        _badgeContract.abi,
-        badgeContract.address
-      )
-    })
-  )
+  const badgeContracts = badgeTCRs.map(badgeContract => ({
+    blockNumber: badgeContract.blockNumber,
+    tcrContract: new web3.eth.Contract(
+      _badgeContract.abi,
+      badgeContract.address
+    )
+  }))
 
   while (true) {
     await Promise.all(
