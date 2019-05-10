@@ -8,17 +8,14 @@ module.exports = async (web3, batchedSend) => {
   const t2cr = JSON.parse(process.env.T2CR)
   const tcrContract = new web3.eth.Contract(_T2CR.abi, t2cr.address)
 
+  let latestBlockNumber = t2cr.blockNumber
   while (true) {
-    const executedItems = await executePending({
+    latestBlockNumber = await executePending({
       batchedSend,
-      fromBlock: t2cr.blockNumber,
+      fromBlock: latestBlockNumber,
       tcrContract,
       toBN: web3.utils.toBN,
       type: 'Token'
-    })
-
-    executedItems.forEach(item => {
-      console.info(`Executed ${item}`)
     })
 
     await delay(1000 * 60 * 10) // Every 10 minutes

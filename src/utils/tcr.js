@@ -12,6 +12,7 @@ const executePending = async ({
 
   // Take most recent event for each item.
   const latestStatusChanges = {}
+  let latestBlockNumber = fromBlock
   statusChangeEvents.forEach(event => {
     const itemKey = event.raw.topics[3]
     if (!latestStatusChanges[itemKey]) {
@@ -42,15 +43,6 @@ const executePending = async ({
         '0x0000000000000000000000000000000000000000000000000000000000000000'
       )
     })
-    .map(requestEvent =>
-      type === 'Token'
-        ? requestEvent.raw.topics[3]
-        : `0x${requestEvent.raw.topics[3].slice(
-            // Cast from bytes32
-            26,
-            requestEvent.raw.topics[3].length
-          )}`
-    )
 
   const challengePeriodDuration = toBN(
     await tcrContract.methods.challengePeriodDuration().call()
@@ -58,7 +50,16 @@ const executePending = async ({
 
   // Only take submissions that passed the challenge period.
   const timedOutRequests = (await Promise.all(
-    undisputedRequests.map(async itemKey => {
+    undisputedRequests.map(async event => {
+      const itemKey =
+        type === 'Token'
+          ? event.raw.topics[3]
+          : `0x${event.raw.topics[3].slice(
+              // Cast address from bytes32
+              26,
+              event.raw.topics[3].length
+            )}`
+
       // Take the submission time from the latest request.
       const { numberOfRequests } = await tcrContract.methods[`get${type}Info`](
         itemKey
@@ -69,11 +70,17 @@ const executePending = async ({
           .call()).submissionTime
       )
 
+      const timedOut = toBN(Math.trunc(Date.now() / 1000).toString()).gte(
+        submissionTime.add(challengePeriodDuration)
+      )
+
+      // Cache the block number of the most recent timed out submission.
+      if (timedOut && event.blockNumber > latestBlockNumber)
+        latestBlockNumber = event.blockNumber
+
       return {
         itemKey,
-        timedOut: toBN(Math.trunc(Date.now() / 1000).toString()).gte(
-          submissionTime.add(challengePeriodDuration)
-        )
+        timedOut
       }
     })
   ))
@@ -81,17 +88,15 @@ const executePending = async ({
     .map(item => item.itemKey)
 
   // Execute pending items.
-  await Promise.all(
-    timedOutRequests.map(async itemKey => {
-      batchedSend({
-        args: [itemKey],
-        method: tcrContract.methods.executeRequest,
-        to: tcrContract.options.address
-      })
-    })
+  batchedSend(
+    timedOutRequests.map(itemKey => ({
+      args: [itemKey],
+      method: tcrContract.methods.executeRequest,
+      to: tcrContract.options.address
+    }))
   )
 
-  return timedOutRequests
+  return latestBlockNumber
 }
 
 module.exports = {

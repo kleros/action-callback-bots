@@ -8,7 +8,7 @@ module.exports = async (web3, batchedSend) => {
   const badgeTCRs = JSON.parse(process.env.BADGE_TCRS)
 
   const badgeContracts = badgeTCRs.map(badgeContract => ({
-    blockNumber: badgeContract.blockNumber,
+    latestBlockNumber: badgeContract.blockNumber,
     tcrContract: new web3.eth.Contract(
       _badgeContract.abi,
       badgeContract.address
@@ -18,16 +18,12 @@ module.exports = async (web3, batchedSend) => {
   while (true) {
     await Promise.all(
       badgeContracts.map(async badgeContract => {
-        const executedItems = await executePending({
+        badgeContract.latestBlockNumber = await executePending({
           batchedSend,
-          fromBlock: badgeContract.blockNumber,
+          fromBlock: badgeContract.latestBlockNumber,
           tcrContract: badgeContract.tcrContract,
           toBN: web3.utils.toBN,
           type: 'Address'
-        })
-
-        executedItems.forEach(item => {
-          console.info(`Executed ${item}`)
         })
       })
     )
