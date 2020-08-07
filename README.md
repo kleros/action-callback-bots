@@ -78,8 +78,8 @@ batchedSend([
 
 ## Transaction Batcher Contract Addresses
 
-- Mainnet:
-- Kovan: 0x741A4dCaD4f72B83bE9103a383911d78362611cf
+- Mainnet: `0x82458d1c812d7c930bb3229c9e159cbabd9aa8cb`
+- Kovan: `0x741A4dCaD4f72B83bE9103a383911d78362611cf`
 
 ## Full Examples
 
