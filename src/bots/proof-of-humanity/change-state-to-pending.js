@@ -1,9 +1,10 @@
 const { gql } = require('graphql-request')
 
 // changeStateToPending(address _submissionID, address[] calldata _vouches)
-// require(submission.status == Status.Vouching, "Wrong status");
-// require(round.hasPaid[uint(Party.Requester)], "Requester didn't pay his fees");
-// require(request.vouches.length >= requiredNumberOfVouches, "Not enough valid vouches");
+// Conditions:
+// - The submission must have the vouching status.
+// - The requester must have paid their fees.
+// - The required number of vouches are required.
 module.exports = async (graph, proofOfHumanity) => {
   const {
     contract: { requiredNumberOfVouches },
@@ -14,7 +15,7 @@ module.exports = async (graph, proofOfHumanity) => {
         contract(id: 0) {
           requiredNumberOfVouches
         }
-        # require(submission.status == Status.Vouching, "Wrong status");
+        # The submission must have the vouching status.
         submissions(where: { status: "Vouching" }) {
           id
           requests(orderBy: creationTime, orderDirection: desc, first: 1) {
@@ -31,7 +32,7 @@ module.exports = async (graph, proofOfHumanity) => {
 
   const submissionsWithVouches = await Promise.all(
     submissions
-      // require(round.hasPaid[uint(Party.Requester)], "Requester didn't pay his fees");
+      // The requester must have paid their fees.
       .filter(
         submission => submission.requests[0].challenges[0].rounds[0].hasPaid[0]
       )
@@ -54,7 +55,7 @@ module.exports = async (graph, proofOfHumanity) => {
 
   return (
     submissionsWithVouches
-      // require(request.vouches.length >= requiredNumberOfVouches, "Not enough valid vouches");
+      // The required number of vouches are required.
       .filter(
         submission =>
           submission.vouches.length >= Number(requiredNumberOfVouches)

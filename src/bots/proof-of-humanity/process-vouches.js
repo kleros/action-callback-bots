@@ -1,8 +1,9 @@
 const { gql } = require('graphql-request')
 
 // processVouches(address _submissionID, uint _requestID, uint _iterations)
-// require(request.resolved, "Submission should be resolved");
-// request.penaltyIndex = endIndex.toUint32();
+// Conditions:
+// - The request must be resolved.
+// - The penalty index can't exceed the number of vouches.
 module.exports = async (graph, proofOfHumanity) => {
   const { submissions } = await graph.request(
     gql`
@@ -24,8 +25,8 @@ module.exports = async (graph, proofOfHumanity) => {
 
   return submissions.flatMap(({ id, requests }) =>
     requests
-      // require(request.resolved, "Submission should be resolved");
-      // request.penaltyIndex = endIndex.toUint32();
+      // The request must be resolved.
+      // The penalty index can't exceed the number of vouches.
       .map(
         (request, index) =>
           request.resolved &&

@@ -1,7 +1,8 @@
 const { gql } = require('graphql-request')
 
 // withdrawFeesAndRewards(address payable _beneficiary, address _submissionID, uint _requestID, uint _challengeID, uint _round)
-// require(request.resolved, "Submission should be resolved");
+// Conditions:
+// - The request must be resolved.
 module.exports = async (graph, proofOfHumanity) => {
   const { contributions } = await graph.request(
     gql`
@@ -36,7 +37,7 @@ module.exports = async (graph, proofOfHumanity) => {
 
   return (
     contributions
-      // require(request.resolved, "Submission should be resolved");
+      // The request must be resolved.
       .filter(contribution => contribution.round.challenge.request.resolved)
       .map(({ contributor, round }) => ({
         args: [

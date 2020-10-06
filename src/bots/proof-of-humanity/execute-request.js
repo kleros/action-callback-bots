@@ -1,9 +1,10 @@
 const { gql } = require('graphql-request')
 
 // executeRequest(address _submissionID)
-// require(now - request.lastStatusChange > challengePeriodDuration, "Can't execute yet");
-// require(!request.disputed, "The request is disputed");
-// require(submission.status == Status.PendingRegistration || submission.status == Status.PendingRemoval);
+// Conditions:
+// - The challenge period must have passed.
+// - The request can't be disputed.
+// - The submission must have a pending status.
 module.exports = async (graph, proofOfHumanity) => {
   const {
     contract: { challengePeriodDuration },
@@ -15,7 +16,7 @@ module.exports = async (graph, proofOfHumanity) => {
         contract(id: 0) {
           challengePeriodDuration
         }
-        # require(submission.status == Status.PendingRegistration || submission.status == Status.PendingRemoval);
+        # The submission must have a pending status.
         pendingRegistration: submissions(
           where: { status: "PendingRegistration" }
         ) {
@@ -25,7 +26,7 @@ module.exports = async (graph, proofOfHumanity) => {
             lastStatusChange
           }
         }
-        # require(submission.status == Status.PendingRegistration || submission.status == Status.PendingRemoval);
+        # The submission must have a pending status.
         pendingRemoval: submissions(where: { status: "PendingRemoval" }) {
           id
           requests(orderBy: creationTime, orderDirection: desc, first: 1) {
@@ -39,8 +40,8 @@ module.exports = async (graph, proofOfHumanity) => {
 
   return (
     [...pendingRegistration, ...pendingRemoval]
-      // require(!request.disputed, "The request is disputed");
-      // require(now - request.lastStatusChange > challengePeriodDuration, "Can't execute yet");
+      // The request can't be disputed.
+      // The challenge period must have passed.
       .filter(
         ({ requests: [request] }) =>
           !request.disputed &&
