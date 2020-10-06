@@ -3,6 +3,7 @@ const delay = require('delay')
 const _batchedSend = require('./utils/batched-send')
 const bots = [
   require('./bots/kleros-liquid'),
+  require('./bots/proof-of-humanity'),
   require('./bots/t2cr'),
   require('./bots/badges')
 ]
