@@ -49,41 +49,45 @@ const executePending = async ({
   )
 
   // Only take submissions that passed the challenge period.
-  const timedOutRequests = (await Promise.all(
-    undisputedRequests.map(async event => {
-      const itemKey =
-        type === 'Token'
-          ? event.raw.topics[3]
-          : `0x${event.raw.topics[3].slice(
-              // Cast address from bytes32
-              26,
-              event.raw.topics[3].length
-            )}`
+  const timedOutRequests = (
+    await Promise.all(
+      undisputedRequests.map(async event => {
+        const itemKey =
+          type === 'Token'
+            ? event.raw.topics[3]
+            : `0x${event.raw.topics[3].slice(
+                // Cast address from bytes32
+                26,
+                event.raw.topics[3].length
+              )}`
 
-      // Take the submission time from the latest request.
-      const { numberOfRequests } = await tcrContract.methods[`get${type}Info`](
-        itemKey
-      ).call()
-      const submissionTime = toBN(
-        (await tcrContract.methods
-          .getRequestInfo(itemKey, numberOfRequests - 1)
-          .call()).submissionTime
-      )
+        // Take the submission time from the latest request.
+        const { numberOfRequests } = await tcrContract.methods[
+          `get${type}Info`
+        ](itemKey).call()
+        const submissionTime = toBN(
+          (
+            await tcrContract.methods
+              .getRequestInfo(itemKey, numberOfRequests - 1)
+              .call()
+          ).submissionTime
+        )
 
-      const timedOut = toBN(Math.trunc(Date.now() / 1000).toString()).gte(
-        submissionTime.add(challengePeriodDuration)
-      )
+        const timedOut = toBN(Math.trunc(Date.now() / 1000).toString()).gte(
+          submissionTime.add(challengePeriodDuration)
+        )
 
-      // Cache the block number of the most recent timed out submission.
-      if (timedOut && event.blockNumber > latestBlockNumber)
-        latestBlockNumber = event.blockNumber
+        // Cache the block number of the most recent timed out submission.
+        if (timedOut && event.blockNumber > latestBlockNumber)
+          latestBlockNumber = event.blockNumber
 
-      return {
-        itemKey,
-        timedOut
-      }
-    })
-  ))
+        return {
+          itemKey,
+          timedOut
+        }
+      })
+    )
+  )
     .filter(item => item.timedOut)
     .map(item => item.itemKey)
 

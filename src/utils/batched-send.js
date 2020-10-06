@@ -85,17 +85,19 @@ module.exports = (
       )
       web3.eth
         .sendSignedTransaction(
-          (await web3.eth.accounts.signTransaction(
-            {
-              data: batchSend.encodeABI(),
-              gas:
-                (await batchSend.estimateGas({ value: batch.totalValue })) +
-                batch.totalGas,
-              to: transactionBatcher.options.address,
-              value: batch.totalValue
-            },
-            privateKey
-          )).rawTransaction
+          (
+            await web3.eth.accounts.signTransaction(
+              {
+                data: batchSend.encodeABI(),
+                gas:
+                  (await batchSend.estimateGas({ value: batch.totalValue })) +
+                  batch.totalGas,
+                to: transactionBatcher.options.address,
+                value: batch.totalValue
+              },
+              privateKey
+            )
+          ).rawTransaction
         )
         .on('receipt', receipt => {
           console.info('Batch receipt: ', receipt)
