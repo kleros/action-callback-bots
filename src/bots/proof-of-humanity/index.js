@@ -22,20 +22,21 @@ module.exports = async (web3, batchedSend) => {
     // Run every 5 minutes.
     while (true) {
       batchedSend(
-        (await Promise.all(
-          [
-            changeStateToPending,
-            executeRequest,
-            processVouches,
-            withdrawFeesAndRewards
-          ].map(f => f(graph, proofOfHumanity))
-        )).flat()
+        (
+          await Promise.all(
+            [
+              changeStateToPending,
+              executeRequest,
+              processVouches,
+              withdrawFeesAndRewards
+            ].map(f => f(graph, proofOfHumanity))
+          )
+        ).flat()
       )
       await delay(300000)
     }
-  } else {
+  } else
     throw new Error(
       'Missing PROOF_OF_HUMANITY_CONTRACT_ADDRESS or PROOF_OF_HUMANITY_SUBGRAPH_URL'
     )
-  }
 }

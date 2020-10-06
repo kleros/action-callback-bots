@@ -38,18 +38,22 @@ module.exports = async (graph, proofOfHumanity) => {
       )
       .map(async submission => ({
         ...submission,
-        vouches: (await graph.request(
-          gql`
-            query vouchesQuery($id: [ID!]!) {
-              submissions(where: { vouchees_contains: $id, usedVouch: null }) {
-                id
+        vouches: (
+          await graph.request(
+            gql`
+              query vouchesQuery($id: [ID!]!) {
+                submissions(
+                  where: { vouchees_contains: $id, usedVouch: null }
+                ) {
+                  id
+                }
               }
+            `,
+            {
+              id: [submission.id]
             }
-          `,
-          {
-            id: [submission.id]
-          }
-        )).submissions.map(submission => submission.id)
+          )
+        ).submissions.map(submission => submission.id)
       }))
   )
 

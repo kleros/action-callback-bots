@@ -19,9 +19,11 @@ module.exports = async (web3, batchedSend) => {
       while (true) {
         if (!resolvedTransactionIDs[transactionID])
           if (
-            (await multipleArbitrableTransaction.methods
-              .transactions(transactionID)
-              .call()).status !== '4'
+            (
+              await multipleArbitrableTransaction.methods
+                .transactions(transactionID)
+                .call()
+            ).status !== '4'
           )
             // The transaction is not finalized, try to call all of its callbacks.
             batchedSend([
