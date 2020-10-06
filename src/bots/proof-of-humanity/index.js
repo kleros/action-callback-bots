@@ -36,7 +36,7 @@ module.exports = async (web3, batchedSend) => {
       await delay(300000)
     }
   } else
-    throw new Error(
+    console.error(
       'Missing PROOF_OF_HUMANITY_CONTRACT_ADDRESS or PROOF_OF_HUMANITY_SUBGRAPH_URL'
     )
 }
