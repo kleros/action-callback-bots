@@ -29,7 +29,6 @@ module.exports = async (web3, batchedSend) => {
       let disputeID = 0
       while (true) {
         if (!executedDisputeIDs[disputeID]) {
-          console.info(`Dispute: #${disputeID}`)
           const dispute = await klerosLiquid.methods.disputes(disputeID).call()
           const dispute2 = await klerosLiquid.methods
             .getDispute(disputeID)
