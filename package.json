@@ -20,7 +20,8 @@
     "test": "echo \"\"",
     "cz": "kathari cz",
     "start": "env-cmd ./.env.staging node ./src/index.js",
-    "start:production": "env-cmd ./.env.production node ./src/index.js"
+    "start:production": "env-cmd ./.env.production node ./src/index.js",
+    "start:ropsten": "env-cmd ./.env.ropsten node ./src/index.js"
   },
   "commitlint": {
     "extends": [
