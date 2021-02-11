@@ -7,17 +7,19 @@ const { gql } = require('graphql-request')
 // - The required number of vouches are required.
 module.exports = async (graph, proofOfHumanity) => {
   const {
-    contract: { requiredNumberOfVouches },
+    contract: { submissionDuration, requiredNumberOfVouches },
     submissions,
   } = await graph.request(
     gql`
       query changeStateToPendingQuery {
         contract(id: 0) {
+          submissionDuration
           requiredNumberOfVouches
         }
         # The submission must have the vouching status.
         submissions(where: { status: "Vouching" }) {
           id
+          submissionTime
           requests(orderBy: creationTime, orderDirection: desc, first: 1) {
             challenges(orderBy: creationTime, orderDirection: desc, first: 1) {
               rounds(orderBy: creationTime, orderDirection: desc, first: 1) {
@@ -50,7 +52,12 @@ module.exports = async (graph, proofOfHumanity) => {
           {
             id: [submission.id],
           }
-        )).submissions.map((submission) => submission.id),
+        )).submissions
+          .filter(
+            ({ submissionTime }) =>
+              Date.now() / 1000 - submissionTime < submissionDuration
+          )
+          .map((submission) => submission.id),
       }))
   )
 
