@@ -31,9 +31,9 @@ module.exports = async (graph, proofOfHumanity) => {
         (request, index) =>
           request.resolved &&
           request.penaltyIndex < request.vouches.length && {
-            args: [id, index, -1],
+            args: [id, index, 15],
             method: proofOfHumanity.methods.processVouches,
-            to: proofOfHumanity.options.address
+            to: proofOfHumanity.options.address,
           }
       )
       .filter(Boolean)
