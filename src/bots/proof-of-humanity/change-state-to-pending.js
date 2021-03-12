@@ -7,7 +7,7 @@ const { gql } = require('graphql-request')
 // - The required number of vouches are required.
 module.exports = async (graph, proofOfHumanity) => {
   const {
-    contract: { submissionDuration, requiredNumberOfVouches },
+    contract: { requiredNumberOfVouches },
     submissions,
   } = await graph.request(
     gql`
@@ -52,12 +52,7 @@ module.exports = async (graph, proofOfHumanity) => {
           {
             id: [submission.id],
           }
-        )).submissions
-          .filter(
-            ({ submissionTime }) =>
-              Date.now() / 1000 - submissionTime < submissionDuration
-          )
-          .map((submission) => submission.id),
+        )).submissions.map((submission) => submission.id),
       }))
   )
 
