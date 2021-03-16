@@ -7,10 +7,11 @@ module.exports = async (graph, proofOfHumanity) => {
   const { contributions } = await graph.request(
     gql`
       query withdrawFeesAndRewardsQuery {
-        contributions(where: { values_not: [0, 0] }) {
+        contributions(where: { values_not: [0, 0] }, first: 1000) {
           round {
             challenge {
               request {
+                resolved
                 submission {
                   id
                   requests(orderBy: creationTime) {
