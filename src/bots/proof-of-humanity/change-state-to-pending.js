@@ -17,7 +17,7 @@ module.exports = async (graph, proofOfHumanity) => {
           requiredNumberOfVouches
         }
         # The submission must have the vouching status.
-        submissions(where: { status: "Vouching" }) {
+        submissions(where: { status: "Vouching" }, first: 5000) {
           id
           submissionTime
           requests(orderBy: creationTime, orderDirection: desc, first: 1) {
