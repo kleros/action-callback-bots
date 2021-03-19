@@ -9,7 +9,7 @@ module.exports = async (graph, proofOfHumanity) => {
     gql`
       query processVouchesQuery {
         # require(request.resolved, "Submission should be resolved");
-        submissions(where: { status: "None" }) {
+        submissions(where: { status: "None" }, first: 300) {
           id
           requests(orderBy: creationTime) {
             resolved
