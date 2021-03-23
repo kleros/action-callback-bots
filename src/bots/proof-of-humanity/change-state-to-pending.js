@@ -6,34 +6,39 @@ const { gql } = require('graphql-request')
 // - The requester must have paid their fees.
 // - The required number of vouches are required.
 module.exports = async (graph, proofOfHumanity) => {
-  const {
-    contract: { requiredNumberOfVouches },
-    submissions,
-  } = await graph.request(
-    gql`
-      query changeStateToPendingQuery {
-        contract(id: 0) {
-          submissionDuration
-          requiredNumberOfVouches
-        }
-        # The submission must have the vouching status.
-        submissions(where: { status: "Vouching" }, first: 1000) {
-          id
-          submissionTime
-          requests(orderBy: creationTime, orderDirection: desc, first: 1) {
-            challenges(orderBy: creationTime, orderDirection: desc, first: 1) {
-              rounds(orderBy: creationTime, orderDirection: desc, first: 1) {
-                hasPaid
+  let lastSubmisionID = "";
+  let allSubmissions = [];
+  while (true) {
+    const {
+      submissions
+    } = await graph.request(
+      gql`
+        query changeStateToPendingQuery($lastId: String) {
+          # The submission must have the vouching status.
+          # Use id_gt instead of skip for better performance.
+          submissions(where: { status: "Vouching", id_gt: $lastId }, first: 1000) {
+            id
+            requests(orderBy: creationTime, orderDirection: desc, first: 1) {
+              challenges(orderBy: creationTime, orderDirection: desc, first: 1) {
+                rounds(orderBy: creationTime, orderDirection: desc, first: 1) {
+                  hasPaid
+                }
               }
             }
           }
         }
+      `,
+      {
+        lastId: lastSubmisionID,
       }
-    `
-  )
+    )
+    allSubmissions = allSubmissions.concat(submissions)
+    if (submissions.length < 1000) break
+    lastSubmisionID = submissions[submissions.length-1].id
+  }
 
   const submissionsWithVouches = await Promise.all(
-    submissions
+    allSubmissions
       // The requester must have paid their fees.
       .filter(
         (submission) =>
@@ -56,6 +61,18 @@ module.exports = async (graph, proofOfHumanity) => {
       }))
   )
 
+  const {
+    contract: { requiredNumberOfVouches }
+  } = await graph.request(
+    gql`
+      query contractVariablesQuery {
+        contract(id: 0) {
+          requiredNumberOfVouches
+        }
+      }
+    `
+  )
+  
   return (
     submissionsWithVouches
       // The required number of vouches are required.
@@ -67,6 +84,6 @@ module.exports = async (graph, proofOfHumanity) => {
         args: [submission.id, submission.vouches, [], []],
         method: proofOfHumanity.methods.changeStateToPending,
         to: proofOfHumanity.options.address,
-      }))
+    }))
   )
 }
