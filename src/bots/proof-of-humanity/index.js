@@ -15,7 +15,7 @@ module.exports = async (web3, batchedSend) => {
   )
   const graph = new GraphQLClient(process.env.PROOF_OF_HUMANITY_SUBGRAPH_URL)
 
-  // Run every 5 minutes.
+  // Run every 60 minutes.
   while (true) {
     batchedSend(
       (
@@ -30,6 +30,6 @@ module.exports = async (web3, batchedSend) => {
         )
       ).flat()
     )
-    await delay(300000)
+    await delay(60 * 60 * 1000)
   }
 }
