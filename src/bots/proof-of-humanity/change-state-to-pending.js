@@ -37,7 +37,7 @@ module.exports = async (graph, proofOfHumanity) => {
     lastSubmisionID = submissions[submissions.length-1].id
   }
 
-  const submissionsWithVouches = await Promise.all(
+  let submissionsWithVouches = await Promise.all(
     allSubmissions
       // The requester must have paid their fees.
       .filter(
@@ -49,7 +49,7 @@ module.exports = async (graph, proofOfHumanity) => {
         vouches: (await graph.request(
           gql`
             query vouchesQuery($id: [ID!]!) {
-              submissions(where: { vouchees_contains: $id, usedVouch: null }) {
+              submissions(where: { vouchees_contains: $id, usedVouch: null, registered: true }) {
                 id
               }
             }
@@ -72,10 +72,26 @@ module.exports = async (graph, proofOfHumanity) => {
       }
     `
   )
-  
+
+  // Addresses are allowed to vouch many submissions simultaneously.
+  // However, only one vouch per address can be used at a time.
+  // Therefore, duplicated vouchers are removed in the following lines.
+  let usedVouches = []
+  for (i = 0; i < submissionsWithVouches.length; i++) {
+    for (j = submissionsWithVouches[i].vouches.length-1; j >= 0; j--) {
+      // Iterates vouches backwards in order to remove duplicates on the go.
+      if (usedVouches.includes(submissionsWithVouches[i].vouches[j])) {
+        submissionsWithVouches[i].vouches.splice(j, 1);
+      }
+    }
+    if (submissionsWithVouches[i].vouches.length >= Number(requiredNumberOfVouches)) {
+      // Only consider submissions with enough vouches to pass to PendingRegistration.
+      usedVouches = [...usedVouches, ...submissionsWithVouches[i].vouches]
+    }
+  }
+
   return (
     submissionsWithVouches
-      // The required number of vouches are required.
       .filter(
         (submission) =>
           submission.vouches.length >= Number(requiredNumberOfVouches)
