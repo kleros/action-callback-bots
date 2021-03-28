@@ -17,9 +17,7 @@ module.exports = async (graph, proofOfHumanity) => {
           challengePeriodDuration
         }
         # The submission must have a pending status.
-        pendingRegistration: submissions(
-          where: { status: "PendingRegistration" }
-        ) {
+        pendingRegistration: submissions(where: { status: "PendingRegistration" }, first: 1000) {
           id
           requests(orderBy: creationTime, orderDirection: desc, first: 1) {
             disputed
@@ -27,7 +25,7 @@ module.exports = async (graph, proofOfHumanity) => {
           }
         }
         # The submission must have a pending status.
-        pendingRemoval: submissions(where: { status: "PendingRemoval" }) {
+        pendingRemoval: submissions(where: { status: "PendingRemoval" }, first: 1000) {
           id
           requests(orderBy: creationTime, orderDirection: desc, first: 1) {
             disputed
