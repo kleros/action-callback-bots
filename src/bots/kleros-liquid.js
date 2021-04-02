@@ -7,6 +7,7 @@ module.exports = async (web3, batchedSend) => {
     _klerosLiquid.abi,
     process.env.KLEROS_LIQUID_CONTRACT_ADDRESS
   )
+  const PhaseEnum = Object.freeze({"staking": 0, "generating": 1, "drawing": 2})
 
   // Keep track of executed disputes so we don't waste resources on them.
   const executedDisputeIDs = {}
@@ -138,10 +139,30 @@ module.exports = async (web3, batchedSend) => {
     } catch (_) {} // Reached the end of the disputes list.
 
     // Try to pass the phase.
-    batchedSend({
-      method: klerosLiquid.methods.passPhase,
-      to: klerosLiquid.options.address
-    })
-    await delay(300000)
+    let readyForNextPhase = false
+    const phase = await klerosLiquid.methods.phase().call()
+    const lastPhaseChange = await klerosLiquid.methods.lastPhaseChange().call()
+    const disputesWithoutJurors = await klerosLiquid.methods.disputesWithoutJurors().call()
+    if (phase == PhaseEnum.staking) {
+      const minStakingTime = await klerosLiquid.methods.minStakingTime().call()
+      if ((Date.now() - lastPhaseChange * 1000 >= minStakingTime * 1000) && disputesWithoutJurors > 0) {
+        readyForNextPhase = true
+      }
+    } else if (phase == PhaseEnum.generating) {
+      readyForNextPhase = true
+    } else if (phase == PhaseEnum.drawing) {
+      const maxDrawingTime = await klerosLiquid.methods.maxDrawingTime().call()
+      if ((Date.now() - lastPhaseChange * 1000 >= maxDrawingTime * 1000) && disputesWithoutJurors == 0) {
+        readyForNextPhase = true
+      }
+    }
+
+    if (readyForNextPhase) {
+      batchedSend({
+        method: klerosLiquid.methods.passPhase,
+        to: klerosLiquid.options.address
+      })
+    }
+    await delay(5 * 60 * 1000)
   }
 }
