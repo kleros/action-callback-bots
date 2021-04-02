@@ -18,7 +18,6 @@ module.exports = async (graph, proofOfHumanity) => {
       }
     `
   )
-
   let lastSubmisionID = "";
   let validSubmissions = [];
   while (true) {
@@ -31,6 +30,8 @@ module.exports = async (graph, proofOfHumanity) => {
           # Use id_gt instead of skip for better performance.
           submissions(where: { status: "Vouching", id_gt: $lastId }, first: 1000) {
             id
+            # Don't count vouchers which are using the vouch on another request.
+            # Don't count vouchers which aren't registered anymore or whose registration has expired.
             vouchesReceived(where: { usedVouch: null, registered: true, submissionTime_gt: $submissionTimestamp }) {
               id
             }
@@ -47,7 +48,7 @@ module.exports = async (graph, proofOfHumanity) => {
       `,
       {
         lastId: lastSubmisionID,
-        submissionTimestamp: Date.now() - submissionDuration,
+        submissionTimestamp: parseInt(Date.now()/1000 - submissionDuration),
       }
     )
     validSubmissions = validSubmissions.concat(
@@ -60,9 +61,15 @@ module.exports = async (graph, proofOfHumanity) => {
     if (submissions.length < 1000) break
     lastSubmisionID = submissions[submissions.length-1].id
   }
+  
+  // Prioritize older submission requests (follow FIFO when two submissions share the same vouches).
+  validSubmissions.sort((a, b) => a.requests[0].creationTime - b.requests[0].creationTime );
 
-  // Prioritize older submissions (follow FIFO when two submissions share the same vouches).
-  validSubmissions.sort((a, b) => { a.request[0].creationTime - b.request[0].creationTime });
+  for (i = 0; i < validSubmissions.length; i++) {
+    // Convert array of voucher objects to array of addresses.
+    validSubmissions[i].vouchesReceived = validSubmissions[i].vouchesReceived
+      .map((voucher) => voucher.id)
+  }
 
   // Addresses are allowed to vouch many submissions simultaneously.
   // However, only one vouch per address can be used at a time.
