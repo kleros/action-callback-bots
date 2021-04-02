@@ -146,14 +146,14 @@ module.exports = async (web3, batchedSend) => {
     const disputesWithoutJurors = await klerosLiquid.methods.disputesWithoutJurors().call()
     if (phase == PhaseEnum.staking) {
       const minStakingTime = await klerosLiquid.methods.minStakingTime().call()
-      if ((Date.now() - lastPhaseChange >= minStakingTime) && disputesWithoutJurors > 0) {
+      if ((Date.now() - lastPhaseChange * 1000 >= minStakingTime * 1000) && disputesWithoutJurors > 0) {
         readyForNextPhase = true
       }
     } else if (phase == PhaseEnum.generating) {
       readyForNextPhase = true
     } else if (phase == PhaseEnum.drawing) {
       const maxDrawingTime = await klerosLiquid.methods.maxDrawingTime().call()
-      if ((Date.now() - lastPhaseChange >= maxDrawingTime) && disputesWithoutJurors == 0) {
+      if ((Date.now() - lastPhaseChange * 1000 >= maxDrawingTime * 1000) && disputesWithoutJurors == 0) {
         readyForNextPhase = true
       }
     }
