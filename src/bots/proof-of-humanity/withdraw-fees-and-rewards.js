@@ -12,6 +12,7 @@ module.exports = async (graph, proofOfHumanity) => {
       gql`
         query withdrawFeesAndRewardsQuery($lastId: String) {
           contributions(where: { values_not: [0, 0], id_gt: $lastId }, first: 1000) {
+            contributor
             round {
               challenge {
                 request {
