@@ -6,19 +6,37 @@ const { gql } = require('graphql-request')
 // - The requester must have paid their fees.
 // - The required number of vouches are required.
 module.exports = async (graph, proofOfHumanity) => {
+  const {
+    contract: { requiredNumberOfVouches, submissionDuration }
+  } = await graph.request(
+    gql`
+      query contractVariablesQuery {
+        contract(id: 0) {
+          requiredNumberOfVouches
+          submissionDuration
+        }
+      }
+    `
+  )
   let lastSubmisionID = "";
-  let allSubmissions = [];
+  let validSubmissions = [];
   while (true) {
     const {
       submissions
     } = await graph.request(
       gql`
-        query changeStateToPendingQuery($lastId: String) {
-          # The submission must have the vouching status.
+        query changeStateToPendingQuery($lastId: String, $submissionTimestamp: BigInt) {
+          # The submission must have the Vouching status.
           # Use id_gt instead of skip for better performance.
           submissions(where: { status: "Vouching", id_gt: $lastId }, first: 1000) {
             id
+            # Don't count vouchers which are using the vouch on another request.
+            # Don't count vouchers which aren't registered anymore or whose registration has expired.
+            vouchesReceived(where: { usedVouch: null, registered: true, submissionTime_gt: $submissionTimestamp }) {
+              id
+            }
             requests(orderBy: creationTime, orderDirection: desc, first: 1) {
+              creationTime
               challenges(orderBy: creationTime, orderDirection: desc, first: 1) {
                 rounds(orderBy: creationTime, orderDirection: desc, first: 1) {
                   hasPaid
@@ -30,74 +48,54 @@ module.exports = async (graph, proofOfHumanity) => {
       `,
       {
         lastId: lastSubmisionID,
+        submissionTimestamp: parseInt(Date.now()/1000 - submissionDuration),
       }
     )
-    allSubmissions = allSubmissions.concat(submissions)
-    if (submissions.length < 1000) break
-    lastSubmisionID = submissions[submissions.length-1].id
-  }
-
-  let submissionsWithVouches = await Promise.all(
-    allSubmissions
-      // The requester must have paid their fees.
-      .filter(
+    validSubmissions = validSubmissions.concat(
+      submissions.filter(
+        // Filter out submissions that are not fully funded.
         (submission) =>
           submission.requests[0].challenges[0].rounds[0].hasPaid[0]
       )
-      .map(async (submission) => ({
-        ...submission,
-        vouches: (await graph.request(
-          gql`
-            query vouchesQuery($id: [ID!]!) {
-              submissions(where: { vouchees_contains: $id, usedVouch: null, registered: true }) {
-                id
-              }
-            }
-          `,
-          {
-            id: [submission.id],
-          }
-        )).submissions.map((submission) => submission.id),
-      }))
-  )
+    )
+    if (submissions.length < 1000) break
+    lastSubmisionID = submissions[submissions.length-1].id
+  }
+  
+  // Prioritize older submission requests (follow FIFO when two submissions share the same vouches).
+  validSubmissions.sort((a, b) => a.requests[0].creationTime - b.requests[0].creationTime );
 
-  const {
-    contract: { requiredNumberOfVouches }
-  } = await graph.request(
-    gql`
-      query contractVariablesQuery {
-        contract(id: 0) {
-          requiredNumberOfVouches
-        }
-      }
-    `
-  )
+  for (i = 0; i < validSubmissions.length; i++) {
+    // Convert array of voucher objects to array of addresses.
+    validSubmissions[i].vouchesReceived = validSubmissions[i].vouchesReceived
+      .map((voucher) => voucher.id)
+  }
 
   // Addresses are allowed to vouch many submissions simultaneously.
   // However, only one vouch per address can be used at a time.
   // Therefore, duplicated vouchers are removed in the following lines.
   let usedVouches = []
-  for (i = 0; i < submissionsWithVouches.length; i++) {
-    for (j = submissionsWithVouches[i].vouches.length-1; j >= 0; j--) {
+  for (i = 0; i < validSubmissions.length; i++) {
+    for (j = validSubmissions[i].vouchesReceived.length-1; j >= 0; j--) {
       // Iterates vouches backwards in order to remove duplicates on the go.
-      if (usedVouches.includes(submissionsWithVouches[i].vouches[j])) {
-        submissionsWithVouches[i].vouches.splice(j, 1);
+      if (usedVouches.includes(validSubmissions[i].vouchesReceived[j])) {
+        validSubmissions[i].vouchesReceived.splice(j, 1);
       }
     }
-    if (submissionsWithVouches[i].vouches.length >= Number(requiredNumberOfVouches)) {
+    if (validSubmissions[i].vouchesReceived.length >= Number(requiredNumberOfVouches)) {
       // Only consider submissions with enough vouches to pass to PendingRegistration.
-      usedVouches = [...usedVouches, ...submissionsWithVouches[i].vouches]
+      usedVouches = [...usedVouches, ...validSubmissions[i].vouchesReceived]
     }
   }
 
   return (
-    submissionsWithVouches
+    validSubmissions
       .filter(
         (submission) =>
-          submission.vouches.length >= Number(requiredNumberOfVouches)
+          submission.vouchesReceived.length >= Number(requiredNumberOfVouches)
       )
       .map((submission) => ({
-        args: [submission.id, submission.vouches, [], []],
+        args: [submission.id, submission.vouchesReceived, [], []],
         method: proofOfHumanity.methods.changeStateToPending,
         to: proofOfHumanity.options.address,
     }))

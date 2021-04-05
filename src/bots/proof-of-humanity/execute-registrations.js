@@ -44,9 +44,8 @@ module.exports = async (graph, proofOfHumanity) => {
     lastSubmisionID = submissions[submissions.length-1].id
   }
 
-  const AUTO_PROCESSED_VOUCH = 10
-
-  const executeRegistrations = allSubmissions
+  return (
+    allSubmissions
     // The request can't be disputed.
     // The challenge period must have passed.
     .filter(
@@ -55,15 +54,10 @@ module.exports = async (graph, proofOfHumanity) => {
         Date.now() - request.lastStatusChange * 1000 >
           challengePeriodDuration * 1000
     )
-    .map(submission => ([{
+    .map(submission => ({
       args: [submission.id],
       method: proofOfHumanity.methods.executeRequest,
       to: proofOfHumanity.options.address
-    }, {
-      args: [submission.id, submission.requestsLength-1, AUTO_PROCESSED_VOUCH],
-      method: proofOfHumanity.methods.processVouches,
-      to: proofOfHumanity.options.address,
-    }]))
-
-  return [].concat(...executeRegistrations)
+    }))
+  )
 }

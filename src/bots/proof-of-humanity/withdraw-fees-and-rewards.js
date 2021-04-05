@@ -4,40 +4,49 @@ const { gql } = require('graphql-request')
 // Conditions:
 // - The request must be resolved.
 module.exports = async (graph, proofOfHumanity) => {
-  const { contributions } = await graph.request(
-    gql`
-      query withdrawFeesAndRewardsQuery {
-        contributions(where: { values_not: [0, 0] }, first: 1000) {
-          round {
-            challenge {
-              request {
-                resolved
-                submission {
+
+  let lastContributionID = "";
+  let allContributions = [];
+  while (true) {
+    const { contributions } = await graph.request(
+      gql`
+        query withdrawFeesAndRewardsQuery($lastId: String) {
+          contributions(where: { values_not: [0, 0], id_gt: $lastId }, first: 1000) {
+            round {
+              challenge {
+                request {
+                  resolved
+                  submission {
+                    id
+                    requests(orderBy: creationTime) {
+                      id
+                    }
+                  }
                   id
-                  requests(orderBy: creationTime) {
+                  challenges(orderBy: creationTime) {
                     id
                   }
                 }
                 id
-                challenges(orderBy: creationTime) {
+                rounds(orderBy: creationTime) {
                   id
                 }
               }
               id
-              rounds(orderBy: creationTime) {
-                id
-              }
             }
-            id
           }
-          contributor
         }
+      `,
+      {
+        lastId: lastContributionID,
       }
-    `
-  )
-
+    )
+    allContributions = allContributions.concat(contributions)
+    if (contributions.length < 1000) break
+    lastContributionID = contributions[contributions.length-1].id
+  }
   return (
-    contributions
+    allContributions
       // The request must be resolved.
       .filter(contribution => contribution.round.challenge.request.resolved)
       .map(({ contributor, round }) => ({
