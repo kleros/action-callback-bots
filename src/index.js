@@ -2,10 +2,10 @@ const Web3 = require('web3')
 const delay = require('delay')
 const _batchedSend = require('./utils/batched-send')
 const bots = [
-  // process.env.KLEROS_LIQUID_CONTRACT_ADDRESS && require('./bots/kleros-liquid'),
+  process.env.KLEROS_LIQUID_CONTRACT_ADDRESS && require('./bots/kleros-liquid'),
   process.env.PROOF_OF_HUMANITY_CONTRACT_ADDRESS && process.env.PROOF_OF_HUMANITY_SUBGRAPH_URL && require('./bots/proof-of-humanity'),
-  // process.env.T2CR && require('./bots/t2cr'),
-  // process.env.BADGE_TCRS && require('./bots/badges')
+  process.env.T2CR && require('./bots/t2cr'),
+  process.env.BADGE_TCRS && require('./bots/badges')
 ]
 
 // Run bots and restart them on failures.
