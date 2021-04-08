@@ -16,9 +16,6 @@ module.exports = async (graph, proofOfHumanity) => {
       }
     `
   )
-  // AUTO_PROCESSED_VOUCH vouches are already processed when the request gets executed.
-  const AUTO_PROCESSED_VOUCH = 10
-  if (requiredNumberOfVouches <= AUTO_PROCESSED_VOUCH) return []
 
   let lastSubmisionID = "";
   let allSubmissions = [];
@@ -32,6 +29,7 @@ module.exports = async (graph, proofOfHumanity) => {
             id
             requests(orderBy: creationTime) {
               resolved
+              disputed
               vouches {
                 id
               }
@@ -49,6 +47,10 @@ module.exports = async (graph, proofOfHumanity) => {
     lastSubmisionID = submissions[submissions.length-1].id
   }
 
+  // AUTO_PROCESSED_VOUCH vouches are already processed when an undisputed request gets executed.
+  const AUTO_PROCESSED_VOUCH = 10
+  const vouchesAlreadyProcessed = requiredNumberOfVouches <= AUTO_PROCESSED_VOUCH
+
   return allSubmissions.flatMap(({ id, requests }) =>
     requests
       // The request must be resolved.
@@ -56,7 +58,8 @@ module.exports = async (graph, proofOfHumanity) => {
       .map(
         (request, index) =>
           request.resolved &&
-          request.penaltyIndex < request.vouches.length && {
+          request.penaltyIndex < request.vouches.length && 
+          (request.disputed || !vouchesAlreadyProcessed) && {
             args: [id, index, 15],
             method: proofOfHumanity.methods.processVouches,
             to: proofOfHumanity.options.address,
