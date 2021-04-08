@@ -5,16 +5,17 @@ const { gql } = require('graphql-request')
 // - The request must be resolved.
 module.exports = async (graph, proofOfHumanity) => {
 
-  let lastCreationTime = "0";
+  let lastContributionID = "";
   let allContributions = [];
   while (true) {
     const { contributions } = await graph.request(
       gql`
-        query withdrawFeesAndRewardsQuery($creationTime: String) {
-          contributions(where: { values_not: [0, 0], creationTime_gt: $creationTime }, first: 1000) {
+        query withdrawFeesAndRewardsQuery($lastId: String) {
+          contributions(where: { values_not: [0, 0], id_gt: $lastId }, first: 1000) {
             contributor
-            creationTime
+            id
             round {
+              id
               challenge {
                 request {
                   resolved
@@ -34,18 +35,17 @@ module.exports = async (graph, proofOfHumanity) => {
                   id
                 }
               }
-              id
             }
           }
         }
       `,
       {
-        creationTime: lastCreationTime,
+        lastId: lastContributionID,
       }
     )
     allContributions = allContributions.concat(contributions)
     if (contributions.length < 1000) break
-    lastCreationTime = contributions[contributions.length-1].creationTime
+    lastContributionID = contributions[contributions.length-1].id
   }
   return (
     allContributions
