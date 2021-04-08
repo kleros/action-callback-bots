@@ -5,7 +5,6 @@ const { gql } = require('graphql-request')
 // - The request must be resolved.
 module.exports = async (graph, proofOfHumanity) => {
 
-  // let lastContributionID = "";
   let lastCreationTime = "0";
   let allContributions = [];
   while (true) {
