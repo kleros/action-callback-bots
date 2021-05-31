@@ -57,6 +57,11 @@ module.exports = (
       )
     ).then(_pendingBatches => (pendingBatches = _pendingBatches))
 
+    const currentGasPrice = web3.utils.toBN(await web3.eth.getGasPrice())
+    const gasPrice = currentGasPrice.gt(web3.utils.toBN('400000000000'))
+      ? '400000000000' // 400 gwei
+      : currentGasPrice.toString()
+
     // Build data for the batch transaction using all the transactions in the new batch and all the transactions in previous pending batches.
     // We do this because if we have pending batches by the time a new batch arrives, it means that their gas prices were too low, so sending a new batch transaction with the same nonce
     // that includes the contents of the new batch and previous pending batches remediates this. If for some reason, the latest batch transaction is not the one that finally gets mined,
@@ -93,7 +98,8 @@ module.exports = (
                   (await batchSend.estimateGas({ value: batch.totalValue })) +
                   batch.totalGas,
                 to: transactionBatcher.options.address,
-                value: batch.totalValue
+                value: batch.totalValue,
+                gasPrice
               },
               privateKey
             )
