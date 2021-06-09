@@ -58,8 +58,9 @@ module.exports = (
     ).then(_pendingBatches => (pendingBatches = _pendingBatches))
 
     const currentGasPrice = web3.utils.toBN(await web3.eth.getGasPrice())
-    const gasPrice = currentGasPrice.gt(web3.utils.toBN('400000000000'))
-      ? '400000000000' // 400 gwei
+    const maxGasPrice = process.env.GAS_PRICE_CEILING_WEI
+    const gasPrice = currentGasPrice.gt(web3.utils.toBN(maxGasPrice))
+      ? maxGasPrice // 400 gwei
       : currentGasPrice.toString()
 
     // Build data for the batch transaction using all the transactions in the new batch and all the transactions in previous pending batches.
