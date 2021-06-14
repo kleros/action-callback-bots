@@ -60,7 +60,7 @@ module.exports = (
     const currentGasPrice = web3.utils.toBN(await web3.eth.getGasPrice())
     const maxGasPrice = process.env.GAS_PRICE_CEILING_WEI
     const gasPrice = currentGasPrice.gt(web3.utils.toBN(maxGasPrice))
-      ? maxGasPrice // 400 gwei
+      ? maxGasPrice
       : currentGasPrice.toString()
 
     // Build data for the batch transaction using all the transactions in the new batch and all the transactions in previous pending batches.
