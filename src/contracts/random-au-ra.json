@@ -1,0 +1,243 @@
+{
+  "contractName": "RandomAuRa",
+  "abi": [
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "collectRoundLength",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "nonpayable",
+      "payable": false,
+      "outputs": [],
+      "name": "commitHash",
+      "inputs": [
+        {
+          "type": "bytes32",
+          "name": "_numberHash",
+          "internalType": "bytes32"
+        },
+        {
+          "type": "bytes",
+          "name": "_cipher",
+          "internalType": "bytes"
+        }
+      ],
+      "constant": false
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "currentCollectRound",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "currentCollectRoundStartBlock",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "currentSeed",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "bytes32",
+          "name": "",
+          "internalType": "bytes32"
+        },
+        {
+          "type": "bytes",
+          "name": "",
+          "internalType": "bytes"
+        }
+      ],
+      "name": "getCommitAndCipher",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_collectRound",
+          "internalType": "uint256"
+        },
+        {
+          "type": "address",
+          "name": "_miningAddress",
+          "internalType": "address"
+        }
+      ],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "",
+          "internalType": "bool"
+        }
+      ],
+      "name": "isCommitPhase",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "",
+          "internalType": "bool"
+        }
+      ],
+      "name": "isCommitted",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_collectRound",
+          "internalType": "uint256"
+        },
+        {
+          "type": "address",
+          "name": "_miningAddress",
+          "internalType": "address"
+        }
+      ],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "nextCollectRoundStartBlock",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "nextCommitPhaseStartBlock",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": "",
+          "internalType": "uint256"
+        }
+      ],
+      "name": "nextRevealPhaseStartBlock",
+      "inputs": [],
+      "constant": true
+    },
+    {
+      "type": "function",
+      "stateMutability": "nonpayable",
+      "payable": false,
+      "outputs": [],
+      "name": "revealNumber",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_number",
+          "internalType": "uint256"
+        }
+      ],
+      "constant": false
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "",
+          "internalType": "bool"
+        }
+      ],
+      "name": "sentReveal",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_collectRound",
+          "internalType": "uint256"
+        },
+        {
+          "type": "address",
+          "name": "_miningAddress",
+          "internalType": "address"
+        }
+      ],
+      "constant": true
+    }
+  ]
+}
