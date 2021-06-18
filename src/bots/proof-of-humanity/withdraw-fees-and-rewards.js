@@ -4,26 +4,18 @@ const { gql } = require('graphql-request')
 // Conditions:
 // - The request must be resolved.
 module.exports = async (graph, proofOfHumanity) => {
-
-  let lastContributionID = "";
-  let allContributions = [];
   const { contributions } = await graph.request(
       gql`
         query withdrawFeesAndRewardsQuery($lastId: String) {
           contributions(where: { values_not: [0, 0], requestResolved: true }, first: 100) {
             contributor
-            id
             requestIndex
             roundIndex
             round {
-              id
               challenge {
+                id
                 request {
                   submission {
-                    id
-                  }
-                  id
-                  challenges(orderBy: creationTime) {
                     id
                   }
                 }
@@ -35,16 +27,12 @@ module.exports = async (graph, proofOfHumanity) => {
   )
   return (
       contributions
-          // The request must be resolved.
-          .filter(contribution => contribution.round.challenge.request.resolved)
-          .map(({ contributor, round }) => ({
+          .map(({ requestIndex, roundIndex, contributor, round }) => ({
             args: [
               contributor,
               round.challenge.request.submission.id,
               requestIndex,
-              round.challenge.request.challenges.findIndex(
-                  challenge => challenge.id === round.challenge.id
-              ),
+              round.challenge.id,
               roundIndex
             ],
             method: proofOfHumanity.methods.withdrawFeesAndRewards,
