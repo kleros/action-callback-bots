@@ -13,7 +13,7 @@ module.exports = async (graph, proofOfHumanity) => {
             roundIndex
             round {
               challenge {
-                id
+                challengeID
                 request {
                   submission {
                     id
@@ -32,7 +32,7 @@ module.exports = async (graph, proofOfHumanity) => {
               contributor,
               round.challenge.request.submission.id,
               requestIndex,
-              round.challenge.id,
+              round.challenge.challengeID,
               roundIndex
             ],
             method: proofOfHumanity.methods.withdrawFeesAndRewards,
