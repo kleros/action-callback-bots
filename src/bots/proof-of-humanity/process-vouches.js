@@ -9,16 +9,14 @@ module.exports = async (graph, proofOfHumanity) => {
     gql`
       query processVouchesQuery {
         submissions(first: 1000, where: { vouchReleaseReady: true }) {
-          vouchees(first: 1, orderBy: latestRequestResolutionTime, orderDirection:desc) {
-            id
-            requestsLength
-          }
+          id
+          requestsLength
         }
       }
     `
   )
 
-  const toProcess = allSubmissions.flatMap(s => s.vouchees).map(({ id, requestsLength }) => {
+  const toProcess = allSubmissions.map(({ id, requestsLength }) => {
     return ({
     args: [id, requestsLength - 1, 15],
     method: proofOfHumanity.methods.processVouches,
