@@ -1,6 +1,6 @@
 const delay = require('delay')
 const _xKlerosLiquid = require('../contracts/x-kleros-liquid.json')
-const _randomAuRa = require('../contracts/randon-au-ra.json')
+const _randomAuRa = require('../contracts/random-au-ra.json')
 
 const DELAYED_STAKES_ITERATIONS = 15
 
