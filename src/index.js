@@ -27,7 +27,6 @@ const run = async bot => {
       } catch (err) {
         console.error('Bot error: ', err)
       }
-      console.log("SUPER ERROR")
       await delay(10000) // Wait 10 seconds before restarting failed bot.
     }
   }

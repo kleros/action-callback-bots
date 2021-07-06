@@ -22,7 +22,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
         "readjustmentTimeout": await klerosConnector.methods.readjustmentTimeout().call()
     }
     const minQueryInterval = contractState.challengeTimeout < contractState.readjustmentTimeout ? contractState.challengeTimeout : contractState.readjustmentTimeout
-    const transacionList = []
+    const transactionList = []
 
     // Loop over all claims.
     try {
@@ -48,7 +48,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
                 claims[claimID].lastStatus == ClaimStatus.Created &&
                 now - claims[claimID].lastActionTime >= contractState.challengeTimeout
             ) {
-                transacionList.append({
+                transactionList.append({
                     args: [claimID],
                     method: klerosConnector.methods.acceptClaim,
                     to: klerosConnector.options.address
@@ -57,7 +57,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
                 claims[claimID].lastStatus == ClaimStatus.Readjustable && 
                 now - claims[claimID].lastActionTime >= contractState.readjustmentTimeout
             ) {
-                transacionList.append({
+                transactionList.append({
                     args: [claimID],
                     method: klerosConnector.methods.refuseClaim,
                     to: klerosConnector.options.address
@@ -66,8 +66,8 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
         }
     } catch (_) {}
 
-    if (transacionList.length > 0) {
-        batchedSend(transacionList)
+    if (transactionList.length > 0) {
+        batchedSend(transactionList)
     }
     await delay(queryFrequency * 60 * 1000)
   }
