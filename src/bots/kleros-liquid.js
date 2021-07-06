@@ -1,6 +1,8 @@
 const delay = require('delay')
 const _klerosLiquid = require('../contracts/kleros-liquid.json')
 
+const DELAYED_STAKES_ITERATIONS = 15
+
 module.exports = async (web3, batchedSend) => {
   // Instantiate the Kleros Liquid contract.
   const klerosLiquid = new web3.eth.Contract(
@@ -20,7 +22,7 @@ module.exports = async (web3, batchedSend) => {
       (await klerosLiquid.methods.nextDelayedSetStake().call())
     )
       batchedSend({
-        args: [15],
+        args: [DELAYED_STAKES_ITERATIONS],
         method: klerosLiquid.methods.executeDelayedSetStakes,
         to: klerosLiquid.options.address
       })
