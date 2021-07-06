@@ -6,7 +6,7 @@ const bots = [
   process.env.PROOF_OF_HUMANITY_CONTRACT_ADDRESS && process.env.PROOF_OF_HUMANITY_SUBGRAPH_URL && require('./bots/proof-of-humanity'),
   process.env.T2CR && require('./bots/t2cr'),
   process.env.BADGE_TCRS && require('./bots/badges'),
-  process.env.UNSLASHED_KLEROS_CONNECTOR_CONTRACT_ADDRESS && require('./bots/unslashed-kleros-connector')
+  process.env.UNSLASHED_KLEROS_CONNECTOR && require('./bots/unslashed-kleros-connector')
 ]
 
 // Run bots and restart them on failures.
@@ -27,6 +27,7 @@ const run = async bot => {
       } catch (err) {
         console.error('Bot error: ', err)
       }
+      console.log("SUPER ERROR")
       await delay(10000) // Wait 10 seconds before restarting failed bot.
     }
   }

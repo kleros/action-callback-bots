@@ -5,7 +5,7 @@ const Ruling = {
   "Claimant": 1,
   "Challenger": 2
 }
-const deploymentBlock = 1000000
+const deploymentBlock = process.env.UNSLASHED_KLEROS_CONNECTOR.blockNumber
 
 module.exports = async (web3, batchedSend, klerosConnector) => {
   // Keep track of the disputes so that we don't waste unnecessary resources on them.
@@ -13,7 +13,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
   const queryFrequency = 60 // minutes
 
   while (true) {
-    const transacionList = []
+    const transactionList = []
 
     // Loop over all disputes.
     try {
@@ -73,13 +73,13 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
         if (disputeWithdrawals.length == 0) {
           withdrawnDisputeIDs[localDisputeID] = true
         }
-        transacionList.push(...disputeWithdrawals)
+        transactionList.push(...disputeWithdrawals)
 
         localDisputeID++
       }
     } catch (_) {} // Reached the end of the disputes list.
 
-    batchedSend(transacionList)
+    batchedSend(transactionList)
     await delay(queryFrequency * 60 * 1000)
   }
 }

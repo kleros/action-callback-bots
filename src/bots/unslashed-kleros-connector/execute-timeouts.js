@@ -28,18 +28,21 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
     try {
         const now = (await web3.eth.getBlock("latest")).timestamp;
         for (let claimID = 0; claimID < contractState.nbClaims; claimID++) {
-            if (claims[claimID].lastStatus == ClaimStatus.Resolved ||
+            if (claims[claimID] !== undefined && (
+                claims[claimID].lastStatus == ClaimStatus.Resolved ||
                 (claims[claimID].lastStatus == ClaimStatus.Created && now - claims[claimID].lastActionTime < contractState.challengeTimeout) ||
                 (claims[claimID].lastStatus == ClaimStatus.Readjustable && now - claims[claimID].lastActionTime < contractState.readjustmentTimeout) ||
-                (claims[claimID].lastStatus == ClaimStatus.Disputed && now - claims[claimID].lastQueryTime < minQueryInterval)) {
+                (claims[claimID].lastStatus == ClaimStatus.Disputed && now - claims[claimID].lastQueryTime < minQueryInterval))) {
                 // Don't query the claim data if it's not needed.
                 continue
             }
             
             const claimData = await klerosConnector.methods.claimsData(claimID).call()
-            claims[claimID].lastStatus = claimData.status
-            claims[claimID].lastActionTime = claimData.lastActionTime
-            claims[claimID].lastQueryTime = now // This value could be a bit underestimated, but it's ok.
+            claims[claimID] = {
+                lastStatus: claimData.status,
+                lastActionTime: claimData.lastActionTime,
+                lastQueryTime: now // This value could be a bit underestimated, but it's ok.
+            }
 
             if (
                 claims[claimID].lastStatus == ClaimStatus.Created &&
