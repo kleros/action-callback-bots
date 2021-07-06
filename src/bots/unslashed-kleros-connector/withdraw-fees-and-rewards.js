@@ -5,7 +5,8 @@ const Ruling = {
   "Claimant": 1,
   "Challenger": 2
 }
-const deploymentBlock = process.env.UNSLASHED_KLEROS_CONNECTOR.blockNumber
+const klerosConnectorData = JSON.parse(process.env.UNSLASHED_KLEROS_CONNECTOR)
+const deploymentBlock = klerosConnectorData.blockNumber
 
 module.exports = async (web3, batchedSend, klerosConnector) => {
   // Keep track of the disputes so that we don't waste unnecessary resources on them.
@@ -35,10 +36,10 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
         // Get contribution events.
         const contributionEvents = await klerosConnector.getPastEvents(
           "Contribution",
-          { 
-            deploymentBlock,
+          {
+            fromBlock: deploymentBlock,
             filter: {
-              localDisputeID: localDisputeID
+              localDisputeID: web3.utils.toBN(localDisputeID)
             }
           }
         )
@@ -72,14 +73,17 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
         }
         if (disputeWithdrawals.length == 0) {
           withdrawnDisputeIDs[localDisputeID] = true
+        } else {
+          transactionList.push(...disputeWithdrawals)
         }
-        transactionList.push(...disputeWithdrawals)
 
         localDisputeID++
       }
     } catch (_) {} // Reached the end of the disputes list.
 
-    batchedSend(transactionList)
+    if (transactionList.length > 0) {
+      batchedSend(transactionList)
+    }
     await delay(queryFrequency * 60 * 1000)
   }
 }
