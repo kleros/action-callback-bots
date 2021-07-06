@@ -13,7 +13,7 @@ const ClaimStatus = {
 module.exports = async (web3, batchedSend, klerosConnector) => {
   // Keep track of the claims so that we don't waste unnecessary resources on them.
   const claims = {}
-  const queryFrequency = 30 // minutes
+  const queryFrequency = 60 // minutes
 
   while (true) {
     const contractState = {
