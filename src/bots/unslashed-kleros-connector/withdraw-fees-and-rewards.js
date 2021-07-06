@@ -1,9 +1,9 @@
 const delay = require('delay')
 
 const Ruling = {
-  "None": 0,
-  "Claimant": 1,
-  "Challenger": 2
+  None: 0,
+  Claimant: 1,
+  Challenger: 2
 }
 const klerosConnectorData = JSON.parse(process.env.UNSLASHED_KLEROS_CONNECTOR)
 const deploymentBlock = klerosConnectorData.blockNumber
@@ -30,12 +30,12 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
         if (!disputeData.resolved) {
           // Dispute is not resolved yet.
           localDisputeID++
-          continue 
+          continue
         }
 
         // Get contribution events.
         const contributionEvents = await klerosConnector.getPastEvents(
-          "Contribution",
+          'Contribution',
           {
             fromBlock: deploymentBlock,
             filter: {
@@ -50,19 +50,21 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
           if (contribution.round == 0) continue // Round zero is automatically withdrawn by the contract logic.
 
           if (disputeData.ruling == Ruling.None || contribution.ruling == disputeData.ruling) {
-            const contributionData = await klerosConnector.methods.getContributions(
-              localDisputeID, 
-              contribution.round, 
-              contribution.contributor
-            ).call()
+            const contributionData = await klerosConnector.methods
+              .getContributions(
+                localDisputeID,
+                contribution.round,
+                contribution.contributor
+              )
+              .call()
 
             // First check if it was already withdrawn.
             if (contributionData[contribution.ruling] > 0) {
               disputeWithdrawals.append({
                 args: [
                   localDisputeID,
-                  contribution.contributor, 
-                  contribution.round, 
+                  contribution.contributor,
+                  contribution.round,
                   contribution.ruling
                 ],
                 method: klerosConnector.methods.withdrawFeesAndRewards,

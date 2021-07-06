@@ -3,11 +3,11 @@
 const delay = require('delay')
 
 const ClaimStatus = {
-  "None": 0,
-  "Created": 1,
-  "Disputed": 2,
-  "Readjustable": 3,
-  "Resolved": 4
+  None: 0,
+  Created: 1,
+  Disputed: 2,
+  Readjustable: 3,
+  Resolved: 4
 }
 
 module.exports = async (web3, batchedSend, klerosConnector) => {
@@ -17,26 +17,33 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
 
   while (true) {
     const contractState = {
-      "nbClaims": await klerosConnector.methods.nbClaims().call(),
-      "challengeTimeout": await klerosConnector.methods.challengeTimeout().call(),
-      "readjustmentTimeout": await klerosConnector.methods.readjustmentTimeout().call()
+      nbClaims: await klerosConnector.methods.nbClaims().call(),
+      challengeTimeout: await klerosConnector.methods.challengeTimeout().call(),
+      readjustmentTimeout: await klerosConnector.methods.readjustmentTimeout().call()
     }
-    const minQueryInterval = contractState.challengeTimeout < contractState.readjustmentTimeout ? contractState.challengeTimeout : contractState.readjustmentTimeout
+    const minQueryInterval =
+      contractState.challengeTimeout < contractState.readjustmentTimeout
+        ? contractState.challengeTimeout
+        : contractState.readjustmentTimeout
     const transactionList = []
 
     // Loop over all claims.
     try {
-      const now = (await web3.eth.getBlock("latest")).timestamp;
+      const now = (await web3.eth.getBlock('latest')).timestamp
       for (let claimID = 0; claimID < contractState.nbClaims; claimID++) {
-        if (claims[claimID] !== undefined && (
-          claims[claimID].lastStatus == ClaimStatus.Resolved ||
-          (claims[claimID].lastStatus == ClaimStatus.Created && now - claims[claimID].lastActionTime < contractState.challengeTimeout) ||
-          (claims[claimID].lastStatus == ClaimStatus.Readjustable && now - claims[claimID].lastActionTime < contractState.readjustmentTimeout) ||
-          (claims[claimID].lastStatus == ClaimStatus.Disputed && now - claims[claimID].lastQueryTime < minQueryInterval))) {
+        if (
+          claims[claimID] !== undefined &&
+          (
+            (claims[claimID].lastStatus == ClaimStatus.Resolved) ||
+            (claims[claimID].lastStatus == ClaimStatus.Created && now - claims[claimID].lastActionTime < contractState.challengeTimeout) ||
+            (claims[claimID].lastStatus == ClaimStatus.Readjustable && now - claims[claimID].lastActionTime < contractState.readjustmentTimeout) ||
+            (claims[claimID].lastStatus == ClaimStatus.Disputed && now - claims[claimID].lastQueryTime < minQueryInterval)
+          )
+        ) {
           // Don't query the claim data if it's not needed.
           continue
         }
-        
+
         const claimData = await klerosConnector.methods.claimsData(claimID).call()
         claims[claimID] = {
           lastStatus: claimData.status,
@@ -54,7 +61,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
             to: klerosConnector.options.address
           })
         } else if (
-          claims[claimID].lastStatus == ClaimStatus.Readjustable && 
+          claims[claimID].lastStatus == ClaimStatus.Readjustable &&
           now - claims[claimID].lastActionTime >= contractState.readjustmentTimeout
         ) {
           transactionList.append({
