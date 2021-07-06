@@ -1,22 +1,23 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # Dependencies
-/node_modules/
+node_modules/
 
 # Environment Variables
-/.env.staging
-/.env.production
+.env
+.env.staging
+.env.production
 
 # Logs
-/yarn-debug.log*
-/yarn-error.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Editors
-/.vscode/
-/.idea/*
+.vscode/
+.idea/*
 
 # Misc
-/.DS_Store
+.DS_Store
 
 # Keys
-/action-callback-bots.pem
+action-callback-bots.pem
