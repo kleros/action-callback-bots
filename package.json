@@ -46,5 +46,8 @@
     "function-batch": "^1.1.2",
     "graphql": "^15.3.0",
     "graphql-request": "^3.1.0"
+  },
+  "volta": {
+    "node": "10.24.1"
   }
 }
