@@ -58,7 +58,7 @@ module.exports = (
     ).then(_pendingBatches => (pendingBatches = _pendingBatches))
 
     const currentGasPrice = web3.utils.toBN(await web3.eth.getGasPrice())
-    const maxGasPrice = process.env.GAS_PRICE_CEILING_WEI
+    const maxGasPrice = !!process.env.GAS_PRICE_CEILING_WEI ? process.env.GAS_PRICE_CEILING_WEI : currentGasPrice
     const gasPrice = currentGasPrice.gt(web3.utils.toBN(maxGasPrice))
       ? maxGasPrice
       : currentGasPrice.toString()
