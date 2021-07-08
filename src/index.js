@@ -23,16 +23,12 @@ const xDaiBots = [
 const run = async (bot, { providerUrl, batcherAddress, privateKey }) => {
   // Create an instance of `web3` and `batched-send` for each bot.
   const web3 = new Web3(providerUrl)
-  const doBatchSend = _batchedSend(
+  const batchedSend = _batchedSend(
     web3,
     batcherAddress,
     privateKey,
     20000 // Batch time window of 20 seconds.
   )
-  const batchedSend = (...args) => {
-    console.info('Calling batch send with args:', args);
-    return doBatchSend(...args);
-  }
 
   while (true) {
     try {
