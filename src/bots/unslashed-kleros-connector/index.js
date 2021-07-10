@@ -7,7 +7,7 @@ const bots = [
 const klerosConnectorData = JSON.parse(process.env.UNSLASHED_KLEROS_CONNECTOR)
 
 module.exports = async (web3, batchedSend) => {
-  // Instantiate the Kleros Liquid contract.
+  // Instantiate the Unslashed KlerosConnector contract.
   const klerosConnector = new web3.eth.Contract(
     _klerosConnector.abi,
     klerosConnectorData.address
