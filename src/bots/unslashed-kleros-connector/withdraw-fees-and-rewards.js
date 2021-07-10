@@ -44,12 +44,19 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
           }
         )
 
+        const numberOfRounds = await klerosConnector.methods
+          .getNumberOfRounds(localDisputeID)
+          .call()
         const disputeWithdrawals = []
         for (let i = 0; i < contributionEvents.length; i++) {
           const contribution = contributionEvents[i].returnValues
           if (contribution.round == 0) continue // Round zero is automatically withdrawn by the contract logic.
 
-          if (disputeData.ruling == Ruling.None || contribution.ruling == disputeData.ruling) {
+          if (
+            disputeData.ruling == Ruling.None || 
+            contribution.ruling == disputeData.ruling ||
+            contribution.round == numberOfRounds - 1
+          ) {
             const contributionData = await klerosConnector.methods
               .getContributions(
                 localDisputeID,
