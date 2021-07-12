@@ -182,7 +182,6 @@ module.exports = async (web3, batchedSend) => {
 
     if (readyForNextPhase) {
       batchedSend({
-        args: [],
         method: xKlerosLiquid.methods.passPhase,
         to: xKlerosLiquid.options.address
       })
