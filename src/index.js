@@ -8,7 +8,8 @@ const bots = [
     process.env.PROOF_OF_HUMANITY_SUBGRAPH_URL &&
     require('./bots/proof-of-humanity'),
   process.env.T2CR && require('./bots/t2cr'),
-  process.env.BADGE_TCRS && require('./bots/badges')
+  process.env.BADGE_TCRS && require('./bots/badges'),
+  process.env.UNSLASHED_KLEROS_CONNECTOR && require('./bots/unslashed-kleros-connector')
 ]
   .filter(bot => typeof bot === 'function')
 
