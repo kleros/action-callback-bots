@@ -49,6 +49,6 @@ module.exports = async (web3, batchedSend) => {
       }
     } catch (_) {} // Reached the end of the transactions list.
 
-    await delay(300000)
+    await delay(1000 * 60 * 60) // Every 60 minutes
   }
 }

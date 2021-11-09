@@ -100,7 +100,8 @@ module.exports = (
                   batch.totalGas,
                 to: transactionBatcher.options.address,
                 value: batch.totalValue,
-                gasPrice
+                maxFeePerGas: gasPrice,
+                maxPriorityFeePerGas: web3.utils.toWei('1', 'gwei')
               },
               privateKey
             )
