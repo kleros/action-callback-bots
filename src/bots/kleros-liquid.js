@@ -165,6 +165,6 @@ module.exports = async (web3, batchedSend) => {
         to: klerosLiquid.options.address
       })
     }
-    await delay(5 * 60 * 1000)
+    await delay(1000 * 60 * 60) // Every 60 minutes
   }
 }
