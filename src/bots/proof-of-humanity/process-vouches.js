@@ -5,22 +5,25 @@ const { gql } = require('graphql-request')
 // - The request must be resolved.
 // - The penalty index can't exceed the number of vouches.
 module.exports = async (graph, proofOfHumanity) => {
-  const { submissions: allSubmissions } = await graph.request(
+  const { requests: allRequests } = await graph.request(
     gql`
       query processVouchesQuery {
-        submissions(first: 1000, where: { vouchReleaseReady: true }) {
+        requests(first: 1000, where: { vouchReleaseReady: true }) {
           id
-          requestsLength
+          requestIndex
+          submission {
+            id
+          }
         }
       }
     `
   )
 
-  const toProcess = allSubmissions.map(({ id, requestsLength }) => {
+  const toProcess = allRequests.map(({ submission, requestIndex }) => {
     return ({
-    args: [id, requestsLength - 1, 15],
-    method: proofOfHumanity.methods.processVouches,
-    to: proofOfHumanity.options.address,
+      args: [submission.id, requestIndex, 15],
+      method: proofOfHumanity.methods.processVouches,
+      to: proofOfHumanity.options.address,
     })
   })
 
