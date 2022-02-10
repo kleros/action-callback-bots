@@ -34,7 +34,7 @@ module.exports = async (web3, homeWeb3, batchedSend) => {
 
   // Keep track of the messages so that we don't waste unnecessary resources on them.
   const pendingMessages = []
-  const queryFrequency = 5 // minutes
+  const queryFrequency = 30 // minutes
   const signaturesProcessed = web3.utils.toBN("0x8000000000000000000000000000000000000000000000000000000000000000")
   let fromBlock = realitioHomeArbitrationProxyData.blockNumber
 
