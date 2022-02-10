@@ -55,7 +55,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
           claims[claimID].lastStatus == ClaimStatus.Created &&
           now - claims[claimID].lastActionTime >= contractState.challengeTimeout
         ) {
-          transactionList.append({
+          transactionList.push({
             args: [claimID],
             method: klerosConnector.methods.acceptClaim,
             to: klerosConnector.options.address
@@ -64,7 +64,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
           claims[claimID].lastStatus == ClaimStatus.Readjustable &&
           now - claims[claimID].lastActionTime >= contractState.readjustmentTimeout
         ) {
-          transactionList.append({
+          transactionList.push({
             args: [claimID],
             method: klerosConnector.methods.refuseClaim,
             to: klerosConnector.options.address
