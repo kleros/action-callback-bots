@@ -9,7 +9,12 @@ const bots = [
     require('./bots/proof-of-humanity'),
   process.env.T2CR && require('./bots/t2cr'),
   process.env.BADGE_TCRS && require('./bots/badges'),
-  process.env.UNSLASHED_KLEROS_CONNECTOR && require('./bots/unslashed-kleros-connector')
+  process.env.UNSLASHED_KLEROS_CONNECTOR && require('./bots/unslashed-kleros-connector'),
+  process.env.HOME_AMB_CONTRACT_ADDRESS &&
+    process.env.HOME_AMB_BRIDGE_HELPER_CONTRACT_ADDRESS &&
+    process.env.FOREIGN_AMB_CONTRACT_ADDRESS &&
+    process.env.REALITIO_HOME_ARBITRAITON_PROXY &&
+    require('./bots/cross-chain')
 ]
   .filter(bot => typeof bot === 'function')
 
