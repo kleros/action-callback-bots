@@ -1,0 +1,54 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "_homeBridge",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "outputs": [
+        {
+          "type": "address",
+          "name": "",
+          "internalType": "contract IHomeBridge"
+        }
+      ],
+      "name": "AMBcontract",
+      "inputs": []
+    },
+    {
+      "type": "function",
+      "stateMutability": "nonpayable",
+      "outputs": [],
+      "name": "clean",
+      "inputs": []
+    },
+    {
+      "type": "function",
+      "stateMutability": "view",
+      "outputs": [
+        {
+          "type": "bytes",
+          "name": "",
+          "internalType": "bytes"
+        }
+      ],
+      "name": "getSignatures",
+      "inputs": [
+        {
+          "type": "bytes",
+          "name": "_message",
+          "internalType": "bytes"
+        }
+      ]
+    }
+  ]
+}

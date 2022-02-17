@@ -67,7 +67,7 @@ module.exports = async (web3, batchedSend, klerosConnector) => {
 
             // First check if it was already withdrawn.
             if (contributionData[contribution.ruling] > 0) {
-              disputeWithdrawals.append({
+              disputeWithdrawals.push({
                 args: [
                   localDisputeID,
                   contribution.contributor,
