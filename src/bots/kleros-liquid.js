@@ -14,7 +14,6 @@ module.exports = async (web3, batchedSend) => {
   // Keep track of executed disputes so we don't waste resources on them.
   const executedDisputeIDs = {}
 
-  // Run every 5 minutes.
   while (true) {
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
     if (
@@ -154,7 +153,7 @@ module.exports = async (web3, batchedSend) => {
       readyForNextPhase = true
     } else if (phase == PhaseEnum.drawing) {
       const maxDrawingTime = await klerosLiquid.methods.maxDrawingTime().call()
-      if ((Date.now() - lastPhaseChange * 1000 >= maxDrawingTime * 1000) && disputesWithoutJurors == 0) {
+      if ((Date.now() - lastPhaseChange * 1000 >= maxDrawingTime * 1000) || disputesWithoutJurors == 0) {
         readyForNextPhase = true
       }
     }
@@ -165,6 +164,6 @@ module.exports = async (web3, batchedSend) => {
         to: klerosLiquid.options.address
       })
     }
-    await delay(1000 * 60 * 60) // Every 60 minutes
+    await delay(1000 * 60 * 10) // Every 10 minutes
   }
 }
