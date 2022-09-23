@@ -78,7 +78,7 @@ batchedSend([
 
 - Mainnet: `0x82458d1c812d7c930bb3229c9e159cbabd9aa8cb`
 - Kovan: `0x741A4dCaD4f72B83bE9103a383911d78362611cf`
-
+- Gnosis Chain: `0x6426800F8508b15AED271337498fa5e7D0794d46`
 ## Full Examples
 
 See the `src/bots` folder in this repo.
