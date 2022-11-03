@@ -77,7 +77,7 @@ batchedSend([
 ## Transaction Batcher Contract Addresses
 
 - Mainnet: `0x82458d1c812d7c930bb3229c9e159cbabd9aa8cb`
-- Kovan: `0x741A4dCaD4f72B83bE9103a383911d78362611cf`
+- Goerli: `0xe7953da7751063d0a41ba727c32c762d3523ade8`
 - Gnosis Chain: `0x6426800F8508b15AED271337498fa5e7D0794d46`
 ## Full Examples
 
