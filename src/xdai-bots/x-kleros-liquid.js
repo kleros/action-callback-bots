@@ -1,4 +1,5 @@
 const delay = require('delay')
+const https = require('https')
 const _xKlerosLiquid = require('../contracts/x-kleros-liquid.json')
 const _randomAuRa = require('../contracts/random-au-ra.json')
 
@@ -20,8 +21,15 @@ module.exports = async (web3, batchedSend) => {
   // Keep track of executed disputes so we don't waste resources on them.
   const executedDisputeIDs = {}
 
-  // Run every 5 minutes.
   while (true) {
+    if (process.env.HEARTBEAT_URL) {
+      https
+        .get(process.env.HEARTBEAT_URL, () => {})
+        .on("error", (e) => {
+          console.error("Failed to send heartbeat: %s", e);
+        });
+    }
+
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
     if (
       (await xKlerosLiquid.methods.lastDelayedSetStake().call()) >=
@@ -186,6 +194,7 @@ module.exports = async (web3, batchedSend) => {
         to: xKlerosLiquid.options.address
       })
     }
-    await delay(5 * 60 * 1000)
+
+    await delay(5 * 60 * 1000) // Every 5 minutes
   }
 }

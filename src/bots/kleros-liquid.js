@@ -1,4 +1,5 @@
 const delay = require('delay')
+const https = require('https')
 const _klerosLiquid = require('../contracts/kleros-liquid.json')
 
 const DELAYED_STAKES_ITERATIONS = 15
@@ -15,6 +16,14 @@ module.exports = async (web3, batchedSend) => {
   const executedDisputeIDs = {}
 
   while (true) {
+    if (process.env.HEARTBEAT_URL) {
+      https
+        .get(process.env.HEARTBEAT_URL, () => {})
+        .on("error", (e) => {
+          console.error("Failed to send heartbeat: %s", e);
+        });
+    }
+
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
     if (
       (await klerosLiquid.methods.lastDelayedSetStake().call()) >=
@@ -164,6 +173,7 @@ module.exports = async (web3, batchedSend) => {
         to: klerosLiquid.options.address
       })
     }
+
     await delay(1000 * 60 * 10) // Every 10 minutes
   }
 }
