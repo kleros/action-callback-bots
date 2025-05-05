@@ -23,23 +23,25 @@ module.exports = async (web3, batchedSend) => {
 
   while (true) {
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
+    console.log("Initializing xKlerosLiquid loop...");
     if (
       (await xKlerosLiquid.methods.lastDelayedSetStake().call()) >=
       (await xKlerosLiquid.methods.nextDelayedSetStake().call())
-    )
-      batchedSend({
+    ) {
+      console.log("Executing delayed set stakes...");
+      await batchedSend({
         args: [DELAYED_STAKES_ITERATIONS],
         method: xKlerosLiquid.methods.executeDelayedSetStakes,
         to: xKlerosLiquid.options.address,
       });
+    }
 
-    // Loop over all disputes.
     try {
       const totalDisputes = Number(
         await xKlerosLiquid.methods.totalDisputes().call()
       );
-
-      for (let disputeID = 0; disputeID < totalDisputes; disputeID++) {
+      console.log("Looping over %s disputes...", totalDisputes);
+      for (let disputeID = 450; disputeID < totalDisputes; disputeID++) {
         if (!executedDisputeIDs[disputeID]) {
           const dispute = await xKlerosLiquid.methods
             .disputes(disputeID)
@@ -47,6 +49,7 @@ module.exports = async (web3, batchedSend) => {
           const dispute2 = await xKlerosLiquid.methods
             .getDispute(disputeID)
             .call();
+
           const voteCounters = await Promise.all(
             // eslint-disable-next-line no-loop-func
             dispute2.votesLengths.map(async (numberOfVotes, i) => {
@@ -113,7 +116,8 @@ module.exports = async (web3, batchedSend) => {
             )
           ) {
             // The dispute is not finalized, try to call all of its callbacks.
-            batchedSend(
+            console.log("Calling callbacks for dispute %s", disputeID);
+            await batchedSend(
               [
                 // We check if there are still pending draws because if there aren't any and the dispute is still in the evidence period,
                 // then the transaction would still succeed and we don't want to waste gas in those cases.
@@ -148,10 +152,12 @@ module.exports = async (web3, batchedSend) => {
           } else {
             executedDisputeIDs[disputeID] = true;
           } // The dispute is finalized, cache it.
+          console.log("The dispute %s is finalized.", disputeID);
         }
       }
-    } catch {
+    } catch (e) {
       // do nothing...
+      console.error("Error while looping over disputes:", e);
     }
 
     // Try to pass the phase.
@@ -191,7 +197,8 @@ module.exports = async (web3, batchedSend) => {
     }
 
     if (readyForNextPhase) {
-      batchedSend({
+      console.log("Passing phase...");
+      await batchedSend({
         method: xKlerosLiquid.methods.passPhase,
         to: xKlerosLiquid.options.address,
       });
@@ -204,7 +211,7 @@ module.exports = async (web3, batchedSend) => {
           console.error("Failed to send heartbeat: %s", e);
         });
     }
-
+    console.log("xKlerosLiquid loop concluded. Awaiting 5 mins for next loop.");
     await delay(5 * 60 * 1000); // Every 5 minutes
   }
 };

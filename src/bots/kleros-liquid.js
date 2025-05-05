@@ -16,17 +16,19 @@ module.exports = async (web3, batchedSend) => {
   const executedDisputeIDs = {};
 
   while (true) {
+    console.log("Initializing klerosLiquid loop...");
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
     if (
       (await klerosLiquid.methods.lastDelayedSetStake().call()) >=
       (await klerosLiquid.methods.nextDelayedSetStake().call())
-    )
+    ) {
+      console.log("Executing delayed set stakes...");
       batchedSend({
         args: [DELAYED_STAKES_ITERATIONS],
         method: klerosLiquid.methods.executeDelayedSetStakes,
         to: klerosLiquid.options.address,
       });
-
+    }
     // Loop over all disputes.
     try {
       let disputeID = 0;
@@ -100,8 +102,9 @@ module.exports = async (web3, batchedSend) => {
                 Number(notTieAndNoOneCoherent[i] ? l : l * 2) !==
                 Number(dispute2.repartitionsInEachRound[i])
             )
-          )
+          ) {
             // The dispute is not finalized, try to call all of its callbacks.
+            console.log("Calling callbacks for dispute %s", disputeID);
             batchedSend(
               [
                 // We check if there are still pending draws because if there aren't any and the dispute is still in the evidence period,
@@ -134,11 +137,16 @@ module.exports = async (web3, batchedSend) => {
                 },
               ].filter((t) => t)
             );
-          else executedDisputeIDs[disputeID] = true; // The dispute is finalized, cache it.
+          } else {
+            executedDisputeIDs[disputeID] = true; // The dispute is finalized, cache it.
+            console.log("Dispute %s is finalized, caching it.", disputeID);
+          }
         }
         disputeID++;
       }
-    } catch (_) {} // Reached the end of the disputes list.
+    } catch (e) {
+      console.error("Failed to process disputes: ", e);
+    } // Reached the end of the disputes list.
 
     // Try to pass the phase.
     let readyForNextPhase = false;
@@ -168,6 +176,7 @@ module.exports = async (web3, batchedSend) => {
     }
 
     if (readyForNextPhase) {
+      console.log("Passing phase...");
       batchedSend({
         method: klerosLiquid.methods.passPhase,
         to: klerosLiquid.options.address,
@@ -181,7 +190,7 @@ module.exports = async (web3, batchedSend) => {
           console.error("Failed to send heartbeat: %s", e);
         });
     }
-
+    console.log("Waiting for 10 minutes for next loop...");
     await delay(1000 * 60 * 10); // Every 10 minutes
   }
 };
