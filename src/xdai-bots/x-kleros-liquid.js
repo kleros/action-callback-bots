@@ -20,7 +20,7 @@ module.exports = async (web3, batchedSend) => {
 
   // Keep track of executed disputes so we don't waste resources on them.
   const executedDisputeIDs = {};
-
+  let doHeartbeat = true;
   while (true) {
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
     console.log("Initializing xKlerosLiquid loop...");
@@ -41,7 +41,7 @@ module.exports = async (web3, batchedSend) => {
         await xKlerosLiquid.methods.totalDisputes().call()
       );
       console.log("Looping over %s disputes...", totalDisputes);
-      for (let disputeID = 450; disputeID < totalDisputes; disputeID++) {
+      for (let disputeID = 0; disputeID < totalDisputes; disputeID++) {
         if (!executedDisputeIDs[disputeID]) {
           const dispute = await xKlerosLiquid.methods
             .disputes(disputeID)
@@ -158,6 +158,7 @@ module.exports = async (web3, batchedSend) => {
     } catch (e) {
       // do nothing...
       console.error("Error while looping over disputes:", e);
+      doHeartbeat = false;
     }
 
     // Try to pass the phase.
@@ -204,7 +205,7 @@ module.exports = async (web3, batchedSend) => {
       });
     }
 
-    if (process.env.HEARTBEAT_URL) {
+    if (process.env.HEARTBEAT_URL && doHeartbeat) {
       https
         .get(process.env.HEARTBEAT_URL, () => {})
         .on("error", (e) => {

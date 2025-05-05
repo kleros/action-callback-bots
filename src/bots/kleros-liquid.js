@@ -15,6 +15,7 @@ module.exports = async (web3, batchedSend) => {
   // Keep track of executed disputes so we don't waste resources on them.
   const executedDisputeIDs = {};
 
+  let doHeartbeat = true;
   while (true) {
     console.log("Initializing klerosLiquid loop...");
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
@@ -23,7 +24,7 @@ module.exports = async (web3, batchedSend) => {
       (await klerosLiquid.methods.nextDelayedSetStake().call())
     ) {
       console.log("Executing delayed set stakes...");
-      batchedSend({
+      await batchedSend({
         args: [DELAYED_STAKES_ITERATIONS],
         method: klerosLiquid.methods.executeDelayedSetStakes,
         to: klerosLiquid.options.address,
@@ -105,7 +106,7 @@ module.exports = async (web3, batchedSend) => {
           ) {
             // The dispute is not finalized, try to call all of its callbacks.
             console.log("Calling callbacks for dispute %s", disputeID);
-            batchedSend(
+            await batchedSend(
               [
                 // We check if there are still pending draws because if there aren't any and the dispute is still in the evidence period,
                 // then the transaction would still succeed and we don't want to waste gas in those cases.
@@ -146,6 +147,7 @@ module.exports = async (web3, batchedSend) => {
       }
     } catch (e) {
       console.error("Failed to process disputes: ", e);
+      doHeartbeat = false;
     } // Reached the end of the disputes list.
 
     // Try to pass the phase.
@@ -177,13 +179,13 @@ module.exports = async (web3, batchedSend) => {
 
     if (readyForNextPhase) {
       console.log("Passing phase...");
-      batchedSend({
+      await batchedSend({
         method: klerosLiquid.methods.passPhase,
         to: klerosLiquid.options.address,
       });
     }
 
-    if (process.env.HEARTBEAT_URL) {
+    if (process.env.HEARTBEAT_URL && doHeartbeat) {
       https
         .get(process.env.HEARTBEAT_URL, () => {})
         .on("error", (e) => {
