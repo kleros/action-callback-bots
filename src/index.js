@@ -42,7 +42,7 @@ const run = async (bot, { providerUrl, batcherAddress, privateKey }) => {
     } catch (err) {
       console.error('Bot error: ', err)
     }
-    await delay(10000) // Wait 10 seconds before restarting failed bot.
+    await delay(60000); // Wait 60 seconds before restarting failed bot.
   }
 }
 
