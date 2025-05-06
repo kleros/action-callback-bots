@@ -149,10 +149,11 @@ module.exports = async (web3, batchedSend) => {
                 },
               ].filter((t) => t)
             );
+            console.log("Callbacks for dispute %s processed.", disputeID);
           } else {
             executedDisputeIDs[disputeID] = true;
+            console.log("The dispute %s was already executed.", disputeID);
           } // The dispute is finalized, cache it.
-          console.log("The dispute %s is finalized.", disputeID);
         }
       }
     } catch (e) {
