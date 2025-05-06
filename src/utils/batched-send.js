@@ -57,11 +57,14 @@ module.exports = (
       )
     ).then(_pendingBatches => (pendingBatches = _pendingBatches))
 
-    const currentGasPrice = web3.utils.toBN(await web3.eth.getGasPrice())
-    const maxGasPrice = !!process.env.GAS_PRICE_CEILING_WEI ? process.env.GAS_PRICE_CEILING_WEI : currentGasPrice
-    const gasPrice = currentGasPrice.gt(web3.utils.toBN(maxGasPrice))
-      ? maxGasPrice
-      : currentGasPrice.toString()
+    const currentGasPrice = web3.utils.toBN(await web3.eth.getGasPrice());
+    const maxGasPrice = !!process.env.GAS_PRICE_CEILING_WEI
+      ? web3.utils.toBN(process.env.GAS_PRICE_CEILING_WEI)
+      : currentGasPrice;
+    const maxPriorityFeePerGas = web3.utils.toBN(web3.utils.toWei("1", "gwei"));
+    const maxFeePerGas = currentGasPrice.gt(maxGasPrice)
+      ? maxGasPrice.add(maxPriorityFeePerGas).toString()
+      : currentGasPrice.add(maxPriorityFeePerGas).toString();
 
     // Build data for the batch transaction using all the transactions in the new batch and all the transactions in previous pending batches.
     // We do this because if we have pending batches by the time a new batch arrives, it means that their gas prices were too low, so sending a new batch transaction with the same nonce
@@ -88,7 +91,7 @@ module.exports = (
         batch.targets,
         batch.values,
         batch.datas
-      )
+      );
       web3.eth
         .sendSignedTransaction(
           (
@@ -100,8 +103,8 @@ module.exports = (
                   batch.totalGas,
                 to: transactionBatcher.options.address,
                 value: batch.totalValue,
-                maxFeePerGas: gasPrice,
-                maxPriorityFeePerGas: web3.utils.toWei('1', 'gwei')
+                maxFeePerGas,
+                maxPriorityFeePerGas,
               },
               privateKey
             )
