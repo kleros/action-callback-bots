@@ -32,7 +32,7 @@ module.exports = async (web3, batchedSend) => {
     }
     // Loop over all disputes.
     try {
-      let disputeID = 0;
+      let disputeID = process.env.STARTING_DISPUTE_ID || 0;
       while (true) {
         if (!executedDisputeIDs[disputeID]) {
           let dispute;

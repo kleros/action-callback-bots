@@ -41,7 +41,10 @@ module.exports = async (web3, batchedSend) => {
         await xKlerosLiquid.methods.totalDisputes().call()
       );
       console.log("Looping over %s disputes...", totalDisputes);
-      for (let disputeID = 0; disputeID < totalDisputes; disputeID++) {
+      // Allow to start the loop from a specific dispute ID.
+      // Useful to avoid processing very old disputes.
+      let disputeID = process.env.XDAI_STARTING_DISPUTE_ID || 0;
+      for (disputeID; disputeID < totalDisputes; disputeID++) {
         if (!executedDisputeIDs[disputeID]) {
           const dispute = await xKlerosLiquid.methods
             .disputes(disputeID)
