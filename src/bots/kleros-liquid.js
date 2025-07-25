@@ -192,6 +192,7 @@ module.exports = async (web3, batchedSend) => {
     }
 
     if (process.env.HEARTBEAT_URL && doHeartbeat) {
+      console.log("Sending heartbeat...");
       https
         .get(process.env.HEARTBEAT_URL, () => {})
         .on("error", (e) => {
