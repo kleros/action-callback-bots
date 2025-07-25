@@ -32,7 +32,7 @@ module.exports = async (web3, batchedSend) => {
     }
     // Loop over all disputes.
     try {
-      let disputeID = 0;
+      let disputeID = process.env.STARTING_DISPUTE_ID || 0;
       while (true) {
         if (!executedDisputeIDs[disputeID]) {
           let dispute;
@@ -192,6 +192,7 @@ module.exports = async (web3, batchedSend) => {
     }
 
     if (process.env.HEARTBEAT_URL && doHeartbeat) {
+      console.log("Sending heartbeat...");
       https
         .get(process.env.HEARTBEAT_URL, () => {})
         .on("error", (e) => {
