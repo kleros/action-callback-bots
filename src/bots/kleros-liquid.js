@@ -72,11 +72,6 @@ module.exports = async (web3, batchedSend) => {
                     i,
                     j
                   );
-                  console.debug(
-                    `Vote for dispute ${disputeID}, choice ${i}, index ${j}: ${JSON.stringify(
-                      vote
-                    )}`
-                  );
                   if (vote.voted) {
                     // increment vote count
                     _voteCounters[vote.choice] = _voteCounters[vote.choice]
