@@ -34,12 +34,15 @@ module.exports = async (web3, batchedSend) => {
     try {
       let disputeID = process.env.STARTING_DISPUTE_ID || 0;
       while (true) {
+        console.debug(`Processing dispute ${disputeID}`);
         if (!executedDisputeIDs[disputeID]) {
           let dispute;
           try {
             dispute = await klerosLiquid.methods.disputes(disputeID).call();
-          } catch (_) {
-            //console.log(e);
+          } catch (e) {
+            console.error(
+              `Error trying to read dispute ${disputeID}: ${e.message}`
+            );
             break;
           }
           const dispute2 = await klerosLiquid.methods
@@ -55,6 +58,9 @@ module.exports = async (web3, batchedSend) => {
                   .call();
               } catch (_) {
                 // Look it up manually if numberOfChoices is too high for loop
+                console.debug(
+                  `Looking up vote counter manually for dispute ${disputeID}, choice ${i}`
+                );
                 let tied = true;
                 let winningChoice = "0";
                 const _voteCounters = {};
@@ -95,12 +101,16 @@ module.exports = async (web3, batchedSend) => {
               return voteCounter;
             })
           );
+          console.debug(`Vote counter has ${voteCounters.length} entries`);
 
           const notTieAndNoOneCoherent = voteCounters.map(
             (v) =>
               !voteCounters[voteCounters.length - 1].tied &&
               v.counts[voteCounters[voteCounters.length - 1].winningChoice] ===
                 "0"
+          );
+          console.debug(
+            `No tie and no coherent votes for dispute ${disputeID}: ${notTieAndNoOneCoherent}`
           );
           if (
             !dispute.ruled ||
@@ -148,6 +158,8 @@ module.exports = async (web3, batchedSend) => {
             executedDisputeIDs[disputeID] = true; // The dispute is finalized, cache it.
             console.log("Dispute %s is finalized, caching it.", disputeID);
           }
+        } else {
+          console.debug(`Dispute ${disputeID} is already executed.`);
         }
         disputeID++;
       }
@@ -163,15 +175,18 @@ module.exports = async (web3, batchedSend) => {
     const disputesWithoutJurors = await klerosLiquid.methods
       .disputesWithoutJurors()
       .call();
+    console.log(`Checking if reay to move phase`);
     if (phase == PhaseEnum.staking) {
       const minStakingTime = await klerosLiquid.methods.minStakingTime().call();
       if (
         Date.now() - lastPhaseChange * 1000 >= minStakingTime * 1000 &&
         disputesWithoutJurors > 0
       ) {
+        console.debug(`Ready to move from staking to generating`);
         readyForNextPhase = true;
       }
     } else if (phase == PhaseEnum.generating) {
+      console.debug(`Ready to move from generating to drawing`);
       readyForNextPhase = true;
     } else if (phase == PhaseEnum.drawing) {
       const maxDrawingTime = await klerosLiquid.methods.maxDrawingTime().call();
@@ -179,6 +194,7 @@ module.exports = async (web3, batchedSend) => {
         Date.now() - lastPhaseChange * 1000 >= maxDrawingTime * 1000 ||
         disputesWithoutJurors == 0
       ) {
+        console.debug(`Ready to move from drawing to staking`);
         readyForNextPhase = true;
       }
     }
