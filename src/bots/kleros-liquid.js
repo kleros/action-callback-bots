@@ -40,9 +40,10 @@ module.exports = async (web3, batchedSend) => {
           try {
             dispute = await klerosLiquid.methods.disputes(disputeID).call();
           } catch (e) {
-            console.error(
-              `Error trying to read dispute ${disputeID}: ${e.message}`
-            );
+            // We are in a disputeID that doesn't exist.
+            // console.error(
+            //   `Error trying to read dispute ${disputeID}: ${e.message}`
+            // );
             break;
           }
           const dispute2 = await klerosLiquid.methods
@@ -70,6 +71,11 @@ module.exports = async (web3, batchedSend) => {
                     disputeID,
                     i,
                     j
+                  );
+                  console.debug(
+                    `Vote for dispute ${disputeID}, choice ${i}, index ${j}: ${JSON.stringify(
+                      vote
+                    )}`
                   );
                   if (vote.voted) {
                     // increment vote count
