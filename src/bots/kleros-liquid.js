@@ -15,8 +15,8 @@ module.exports = async (web3, batchedSend) => {
   // Keep track of executed disputes so we don't waste resources on them.
   const executedDisputeIDs = {};
 
-  let doHeartbeat = true;
   while (true) {
+    let doHeartbeat = true;
     console.log("Initializing klerosLiquid loop...");
     // Try to execute delayed set stakes if there are any. We check because this transaction still succeeds when there are not any and we don't want to waste gas in those cases.
     if (
